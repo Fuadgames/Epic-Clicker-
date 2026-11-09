@@ -1,0 +1,10 @@
+{
+  "name": "epic-clicker",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Epic Clicker! — неоновая игра-кликер",
+  "scripts": {
+    "dev": "node dev-server.cjs",
+    "test": "node --test tests/engine.test.cjs"
+  }
+}

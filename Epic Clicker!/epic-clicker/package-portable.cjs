@@ -1,0 +1,10 @@
+const fs = require('node:fs');
+const path = require('node:path');
+const dist = path.join(__dirname, 'dist');
+let html = fs.readFileSync(path.join(dist, 'index.html'), 'utf8');
+html = html.replace(/<link rel="stylesheet" href="style\.css(?:\?[^"]*)?">/, () => '<style>\n' + fs.readFileSync(path.join(dist, 'style.css'), 'utf8') + '\n</style>');
+html = html.replace(/<script src="(?:engine|i18n|game)\.js(?:\?[^"]*)?" defer><\/script>/g, '');
+html = html.replace('</body>', () => '<script>\n' + ['engine.js', 'i18n.js', 'game.js'].map(file => fs.readFileSync(path.join(dist, file), 'utf8')).join('\n') + '\n</script>\n</body>');
+const output = path.join(__dirname, '..', 'Epic Clicker!.html');
+fs.writeFileSync(output, html);
+console.log(output);

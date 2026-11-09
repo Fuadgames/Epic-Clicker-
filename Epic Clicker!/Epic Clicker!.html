@@ -1,0 +1,1382 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#101018">
+<meta name="description" content="Epic Clicker! — неоновый кликер. Собирай энергию, покупай улучшения и делай каждый клик эпичным.">
+<title>Epic Clicker!</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%230e1016'/%3E%3Cpath d='M37 5 12 36h18l-4 23 26-35H34z' fill='%23d4ff63'/%3E%3C/svg%3E">
+<style>
+:root {
+  --bg: #0d0e15;
+  --surface: #15161f;
+  --lime: #d4ff63;
+  --purple: #a38aff;
+  --text: #f4f4f8;
+  --muted: #777987;
+  --line: #ffffff0d;
+  color-scheme: dark;
+  font-family: "Segoe UI", Arial, sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+.settings-note { color: var(--muted); font-size: 11px; line-height: 1.7; margin: 22px 0 5px; }
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { margin: 0; background: var(--bg); color: var(--text); overflow-x: hidden; }
+button { font: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+button:focus-visible { outline: 2px solid var(--lime); outline-offset: 5px; }
+button:disabled { cursor: not-allowed; }
+button, svg { flex-shrink: 0; }
+button svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+::selection { background: #a38aff55; color: white; }
+.page { position: relative; min-height: 100svh; padding: 28px clamp(24px, 5.5vw, 90px) 0; display: flex; flex-direction: column; isolation: isolate; overflow: hidden; user-select: none; }
+.grid { position: absolute; z-index: -2; inset: 0; pointer-events: none; }
+.grid { background-image: linear-gradient(#ffffff03 1px, transparent 1px), linear-gradient(90deg, #ffffff03 1px, transparent 1px); background-size: 64px 64px; mask-image: radial-gradient(ellipse at 50% 42%, #000 15%, transparent 72%); }
+.ambient { position: absolute; z-index: -1; inset: 0; background: radial-gradient(ellipse at 52% 42%, #b8ed2c09, transparent 34%), radial-gradient(ellipse at 95% 12%, #8a64ff09, transparent 36%), radial-gradient(ellipse at 8% 88%, #8a64ff07, transparent 35%); pointer-events: none; animation: ambient-breathe 9s ease-in-out infinite alternate; }
+header { position: relative; z-index: 2; display: flex; align-items: center; justify-content: space-between; gap: 20px; width: 100%; min-height: 62px; }
+.brand { display: flex; align-items: center; gap: 12px; }
+.brand-mark { display: grid; place-items: center; width: 43px; height: 46px; border-radius: 12px; color: var(--lime); background: #d4ff630b; border: 1px solid #d4ff6326; font-size: 43px; font-weight: 900; line-height: 1; transform: rotate(-6deg); text-shadow: 0 0 20px #d4ff6344; }
+.brand-text { font-size: 17px; font-weight: 900; letter-spacing: -.5px; }
+.brand-text > span:not(.edition) { color: var(--lime); }
+.edition { display: block; font-size: 7px; letter-spacing: 2.4px; color: var(--muted); font-weight: 600; margin-top: 5px; }
+.header-right { display: flex; align-items: center; gap: 12px; }
+.icon-btn { display: grid; place-items: center; width: 48px; height: 48px; color: #858692; background: #ffffff03; border: 1px solid #ffffff0e; border-radius: 14px; transition: color .18s, background .18s, transform .18s; }
+.icon-btn:hover { color: var(--text); background: #ffffff08; transform: translateY(-2px); }
+.icon-btn[aria-pressed="true"] { color: var(--lime); border-color: #d4ff6330; }
+.shop-btn { display: flex; align-items: center; gap: 9px; min-height: 48px; padding: 0 23px; border-radius: 14px; background: var(--lime); color: #171b0c; font-size: 14px; font-weight: 800; border: 1px solid #e7ffad; box-shadow: 0 4px 24px #d4ff6310, inset 0 1px #ffffff6b; transition: transform .18s, background .18s, box-shadow .18s; }
+.shop-btn:hover { transform: translateY(-3px) rotate(-1deg); background: #e0ff8d; box-shadow: 0 7px 32px #d4ff6329; }
+.shop-btn:active, .icon-btn:active { transform: scale(.95); }
+.shop-count { display: grid; place-items: center; min-width: 20px; height: 20px; padding: 0 5px; border-radius: 6px; background: #171b0c; color: var(--lime); font-size: 10px; margin-left: 3px; }
+.shop-count:empty { display: none; }
+main { flex: 1; position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 41px 0 40px; min-height: 565px; text-align: center; animation: reveal .75s ease-out both; }
+.eyebrow { display: flex; gap: 9px; align-items: center; font-size: 9px; font-weight: 700; letter-spacing: 2.3px; color: #a0a18c; }
+.eyebrow i { width: 5px; height: 5px; border-radius: 50%; background: var(--lime); box-shadow: 0 0 12px #d4ff6370; animation: beacon 3s infinite; }
+h1 { position: relative; z-index: 1; margin: 17px 0 5px; font-size: clamp(31px, 3.3vw, 49px); font-weight: 750; letter-spacing: -2.1px; line-height: 1.15; }
+h1 em { color: var(--lime); font-style: normal; }
+.ghost { position: absolute; z-index: -1; top: 44%; left: 50%; transform: translate(-50%, -50%) rotate(-8deg); color: transparent; -webkit-text-stroke: 1px #ffffff06; font-size: clamp(160px, 26vw, 360px); font-weight: 950; letter-spacing: -19px; white-space: nowrap; pointer-events: none; }
+.side-label { position: absolute; top: 48%; font-size: 8px; letter-spacing: 2.4px; font-weight: 600; color: #525361; white-space: nowrap; writing-mode: vertical-rl; }
+.side-label span { color: var(--lime); padding: 12px 0; }
+.side-label.left { left: 0; transform: rotate(180deg); }
+.side-label.right { right: 0; }
+.arena { position: relative; width: min(410px, 100%); height: 294px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding-top: 62px; margin: 7px 0 3px; }
+.orbit { position: absolute; width: 282px; height: 282px; border: 1px solid #d4ff630c; border-radius: 50%; top: 6px; left: calc(50% - 141px); pointer-events: none; animation: orbit-turn 42s linear infinite; }
+.orbit::after { content: ""; position: absolute; width: 5px; height: 5px; border-radius: 50%; top: 41px; right: 38px; background: #d4ff6366; box-shadow: 0 0 12px #d4ff6333; }
+.orbit.second { width: 340px; height: 340px; top: -23px; left: calc(50% - 170px); border-color: #ffffff04; border-style: dashed; animation: orbit-turn 75s linear infinite reverse; }
+.orbit.second::after { background: #a38aff55; width: 4px; height: 4px; top: 51px; right: 47px; }
+.orbit.third { width: 224px; height: 224px; top: 35px; left: calc(50% - 112px); border-color: #ffffff03; animation-duration: 33s; }
+.orbit.third::after { display: none; }
+.bolt { position: absolute; top: 30px; width: 55px; height: 69px; filter: drop-shadow(0 0 22px #d4ff6322); animation: bolt-float 4s ease-in-out infinite; }
+.bolt svg { width: 100%; height: 100%; overflow: visible; }
+.score-wrap { position: relative; z-index: 1; transform-origin: center; will-change: transform; max-width: 100%; }
+.score { color: var(--text); font-size: clamp(74px, 9.8vw, 142px); font-weight: 850; line-height: 1.08; letter-spacing: -8px; font-variant-numeric: tabular-nums; text-shadow: 0 4px 35px #ffffff08; white-space: nowrap; overflow-wrap: normal; }
+.score.medium { font-size: clamp(38px, 7.4vw, 66px); letter-spacing: -2px; }
+.score.small { font-size: clamp(18px, 4.7vw, 28px); letter-spacing: -.5px; }
+.score.massive { max-width: 100%; font-size: 16px; white-space: normal; overflow-wrap: anywhere; line-height: 1.4; }
+#lifetime, #shop-balance, #next-price { overflow-wrap: anywhere; }
+#lifetime { font-size: clamp(13px, 1.5vw, 22px); }
+.score-label { margin-top: 9px; color: #73767e; font-size: 10px; font-weight: 700; letter-spacing: 5px; padding-left: 5px; }
+.mini-star { position: absolute; font-size: 20px; color: var(--lime); animation: star-shine 4s ease-in-out infinite; }
+.mini-star.one { top: 44px; left: 52px; font-size: 17px; }
+.mini-star.two { top: 90px; right: 32px; color: var(--purple); font-size: 30px; animation-delay: -1.5s; }
+.mini-star.three { bottom: 40px; left: 26px; color: #a38aff77; font-size: 12px; animation-delay: -2.5s; }
+.combo { position: absolute; left: calc(50% + 150px); top: 48%; color: var(--lime); font-size: 17px; font-weight: 950; font-style: italic; letter-spacing: -1px; opacity: 0; transform: translateY(10px) rotate(-12deg) scale(.8); transition: opacity .18s, transform .18s; pointer-events: none; }
+.combo small { display: block; margin-top: 5px; font-style: normal; color: #959a83; font-size: 6px; letter-spacing: 1.4px; }
+.combo.active { opacity: 1; transform: translateY(0) rotate(-12deg) scale(1); }
+.gain { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; max-width: 100%; gap: 7px; font-size: 12px; color: #858793; line-height: 20px; }
+.gain svg { width: 9px; height: 14px; fill: var(--lime); margin-right: 2px; }
+.gain b { color: #dedfe6; font-weight: 700; }
+.gain > span { color: #494b58; margin: 0 5px; }
+.click-formula { max-width: min(650px, 100%); margin: 8px auto 0; padding: 0 10px; color: #747786; font-size: 10px; line-height: 1.65; overflow-wrap: anywhere; text-wrap: pretty; }
+.active-upgrades { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 6px; max-width: 650px; min-height: 34px; margin-top: 9px; }
+.empty-upgrades { color: #595c69; font-size: 11px; }
+.upgrade-tag { display: inline-flex; align-items: center; gap: 5px; padding: 5px 9px; background: #a38aff0c; border: 1px solid #a38aff20; border-radius: 6px; color: #b3a3df; font-size: 10px; animation: tag-in .3s ease-out both; }
+.click-hint { display: flex; align-items: center; justify-content: center; gap: 5px; margin-top: 26px; color: #727481; font-size: 11px; }
+.click-hint strong { color: #b6b8c2; font-weight: 600; }
+.mouse { position: relative; width: 12px; height: 17px; border: 1px solid #626571; border-radius: 5px; margin-right: 5px; }
+.mouse::after { position: absolute; content: ""; width: 2px; height: 4px; border-radius: 2px; left: 4px; top: 3px; background: var(--lime); animation: mouse-scroll 2s ease-in-out infinite; }
+.dashboard { display: grid; grid-template-columns: 1fr 1fr 1.3fr; position: relative; border: 1px solid #ffffff0c; border-radius: 18px; background: linear-gradient(125deg, #ffffff04, #ffffff01); }
+.stat { display: flex; align-items: center; gap: 17px; padding: 25px 28px; }
+.stat > div:last-child { min-width: 0; flex: 1; }
+.stat + .stat { border-left: 1px solid #ffffff08; }
+.stat-icon { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 12px; font-size: 24px; color: #a1a38e; background: #d4ff6306; border: 1px solid #d4ff6310; }
+.stat:nth-child(2) .stat-icon { color: #a38affb3; background: #a38aff08; border-color: #a38aff15; }
+.stat-label { color: #737581; font-size: 8px; line-height: 1.5; font-weight: 700; letter-spacing: 1.4px; }
+.stat-value { margin-top: 6px; color: #e5e6ed; font-weight: 700; font-size: 22px; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.stat-value small { margin-left: 7px; font-size: 11px; color: #656875; font-weight: 400; }
+.auto-lights { display: flex; width: 100%; max-width: 112px; gap: 5px; margin-top: 9px; }
+.auto-track { flex: 1; min-width: 0; height: 3px; overflow: hidden; background: #ffffff0c; border-radius: 3px; }
+.auto-track i { display: block; width: 100%; height: 100%; border-radius: inherit; background: var(--purple); transform: scaleX(0); transform-origin: left; transition: transform .05s linear; }
+.auto-track:nth-child(2) i { background: var(--lime); }
+.auto-track:nth-child(3) i { background: #ff97c6; }
+.next { min-width: 0; text-align: left; border: 0; border-left: 1px solid #ffffff08; background: transparent; color: var(--text); padding: 21px 28px; border-radius: 0 18px 18px 0; transition: background .2s; }
+.next:hover { background: #d4ff6305; }
+.next:hover .next-arrow { transform: translate(2px, -2px); color: var(--lime); }
+.next-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 3px; }
+.next-name { font-size: 14px; font-weight: 700; }
+.next-arrow { color: #8d9674; font-size: 23px; line-height: 1; transition: transform .2s, color .2s; }
+.progress { overflow: hidden; height: 3px; border-radius: 3px; background: #ffffff0b; margin-top: 12px; }
+.progress i { display: block; width: 0; height: 100%; border-radius: inherit; background: var(--lime); box-shadow: 0 0 10px #d4ff6344; transition: width .25s ease-out; }
+.progress-caption { display: flex; align-items: center; justify-content: space-between; gap: 10px; color: #5c5f6b; font-size: 8px; line-height: 1.4; margin-top: 7px; }
+.progress-caption b { color: #8d957b; font-weight: 500; white-space: nowrap; }
+footer { display: flex; align-items: center; justify-content: space-between; min-height: 65px; gap: 12px; font-size: 9px; color: #50535f; }
+.save-status { display: flex; align-items: center; gap: 7px; }
+.save-status i { width: 4px; height: 4px; border-radius: 50%; background: #77904d; box-shadow: 0 0 6px #d4ff631a; }
+.footer-note { font-size: 7px; font-weight: 700; letter-spacing: 1.6px; }
+
+dialog { width: min(800px, calc(100vw - 40px)); max-width: none; max-height: calc(100dvh - 48px); margin: auto; padding: 0; color: var(--text); background: #13141d; border: 1px solid #ffffff16; border-radius: 23px; box-shadow: 0 35px 140px #0009, 0 0 80px #a38aff08; overflow: hidden; }
+dialog[open] { animation: modal-in .24s cubic-bezier(.2,.8,.2,1) both; }
+dialog::backdrop { background: #05060bca; backdrop-filter: blur(10px); animation: backdrop-in .2s ease-out both; }
+dialog.closing { animation: modal-out .17s ease-in both; }
+dialog.closing::backdrop { animation: backdrop-out .17s ease-in both; }
+.modal-inner { display: flex; flex-direction: column; max-height: calc(100dvh - 48px); }
+.modal-head { padding: 26px 30px 20px; border-bottom: 1px solid #ffffff09; background: radial-gradient(ellipse at 90% 0, #a38aff08, transparent 65%); flex-shrink: 0; }
+.modal-title-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; }
+.modal-kicker { color: #7c7f8e; font-size: 8px; letter-spacing: 2px; font-weight: 700; }
+h2 { font-size: 36px; letter-spacing: -1.4px; line-height: 1.2; margin: 7px 0 0; }
+.close-btn { display: grid; place-items: center; width: 37px; height: 37px; color: #a5a6b0; border: 1px solid #ffffff10; background: #ffffff04; border-radius: 11px; font-size: 25px; line-height: 1; transition: background .2s, color .2s, transform .2s; }
+.close-btn:hover { color: white; background: #ffffff0b; transform: rotate(90deg); }
+.modal-sub { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 16px; color: #858795; font-size: 11px; }
+.wallet { display: inline-flex; align-items: center; gap: 6px; color: var(--lime); font-weight: 750; font-size: 16px; white-space: nowrap; }
+.wallet small { color: #808672; font-size: 10px; font-weight: 400; }
+.products { display: flex; flex-direction: column; gap: 10px; padding: 20px 24px; overflow-y: auto; min-height: 0; scrollbar-width: thin; scrollbar-color: #363846 transparent; }
+.product { position: relative; display: grid; grid-template-columns: 46px minmax(0, 1fr) auto; align-items: center; gap: 15px; padding: 18px; border: 1px solid #ffffff0c; border-radius: 14px; background: #ffffff03; transition: border-color .2s, background .2s, transform .2s; }
+.product:hover { background: #ffffff05; border-color: #ffffff1a; transform: translateY(-1px); }
+.product.epic { border-color: #a38aff2b; background: linear-gradient(120deg, #a38aff0b, #a38aff03); }
+.product.epic:hover { border-color: #a38aff55; }
+.product.owned { border-color: #d4ff6320; background: #d4ff6304; }
+.product-icon { display: grid; place-items: center; width: 46px; height: 48px; background: #d4ff6308; border: 1px solid #d4ff6315; border-radius: 12px; color: var(--lime); font-size: 22px; font-weight: 800; }
+.product.epic .product-icon { background: #a38aff15; border-color: #a38aff26; color: #beaaff; }
+.product-type { color: #7c806c; font-size: 7px; font-weight: 700; letter-spacing: 1.6px; text-transform: uppercase; margin-bottom: 4px; }
+.product.epic .product-type { color: #a38affad; }
+.product h3 { font-size: 15px; font-weight: 750; margin: 0; letter-spacing: -.3px; }
+.product p { margin: 6px 0 0; color: #838593; font-size: 11px; line-height: 1.5; max-width: 400px; }
+.buy-btn { min-width: 106px; border: 1px solid #d4ff6338; border-radius: 10px; padding: 10px 13px; background: var(--lime); color: #1a210e; font-size: 13px; font-weight: 800; line-height: 1.1; white-space: nowrap; transition: transform .15s, box-shadow .15s, background .15s; }
+.buy-btn small { display: block; margin-top: 4px; font-size: 8px; font-weight: 600; opacity: .7; }
+.buy-btn:hover:not(:disabled) { background: #e1ff94; transform: translateY(-2px); box-shadow: 0 4px 20px #d4ff631c; }
+.buy-btn:active:not(:disabled) { transform: scale(.96); }
+.buy-btn:disabled { border-color: #ffffff0b; background: #ffffff05; color: #666977; }
+.product.owned .buy-btn:disabled { background: #d4ff6308; color: #a5bd78; border-color: #d4ff6316; }
+.modal-foot { border-top: 1px solid #ffffff09; padding: 10px 27px 18px; font-size: 9px; line-height: 1.65; color: #666977; flex-shrink: 0; }
+.shop-notice { color: var(--lime); min-height: 18px; font-size: 11px; margin-bottom: 4px; }
+.effects { position: fixed; inset: 0; z-index: 30; overflow: hidden; pointer-events: none; }
+.ripple { position: absolute; width: 38px; height: 38px; margin: -19px 0 0 -19px; border: 1.5px solid var(--lime); border-radius: 50%; box-shadow: 0 0 10px #d4ff6318; animation: click-ripple .45s ease-out forwards; }
+.spark { position: absolute; width: 4px; height: 4px; margin: -2px 0 0 -2px; background: var(--lime); border-radius: 1px; box-shadow: 0 0 8px #d4ff6360; animation: click-spark .5s ease-out forwards; }
+.spark:nth-child(3n) { background: var(--purple); }
+.float-number { position: absolute; color: var(--lime); font-weight: 800; font-size: 23px; line-height: 1; text-shadow: 0 2px 12px #0d0e15, 0 0 15px #d4ff6333; white-space: nowrap; animation: number-float .65s ease-out forwards; }
+.float-number.bonus { font-size: 14px; color: #beaaff; animation-duration: .8s; text-shadow: 0 2px 8px #0d0e15; }
+.toast { position: fixed; z-index: 50; bottom: 28px; left: 50%; transform: translate(-50%, 20px) scale(.96); opacity: 0; max-width: calc(100vw - 32px); padding: 13px 20px; border: 1px solid #d4ff6333; border-radius: 12px; background: #1b2118f2; color: #dbf8b3; box-shadow: 0 10px 40px #0006; font-size: 12px; text-align: center; pointer-events: none; transition: opacity .2s, transform .2s; }
+.toast.show { opacity: 1; transform: translate(-50%, 0) scale(1); }
+
+.settings-btn { display: flex; align-items: center; justify-content: center; gap: 9px; min-height: 48px; padding: 0 18px; border: 1px solid #ffffff12; border-radius: 14px; color: #b6b7c3; background: #ffffff04; font-size: 13px; font-weight: 650; transition: color .18s, border-color .18s, background .18s, transform .18s; }
+.settings-btn svg { width: 19px; height: 19px; transition: transform .3s ease-out; }
+.settings-btn:hover { color: var(--text); background: #a38aff0a; border-color: #a38aff35; transform: translateY(-2px); }
+.settings-btn:hover svg { transform: rotate(35deg); }
+.settings-btn:active { transform: scale(.96); }
+#settings { width: min(540px, calc(100vw - 40px)); }
+#settings .settings-inner { padding: 8px 28px 26px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: #363846 transparent; }
+.setting-row { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 23px 0; }
+.setting-row + .setting-row { border-top: 1px solid #ffffff0a; }
+.setting-row > :first-child { min-width: 0; }
+.setting-row strong, .setting-row h3 { display: block; margin: 0; color: #e7e8ef; font-size: 14px; font-weight: 650; }
+.setting-row p, .setting-row small { display: block; margin: 6px 0 0; max-width: 245px; color: #858795; font-size: 11px; line-height: 1.55; }
+.language-options { display: flex; align-items: center; flex-shrink: 0; padding: 4px; gap: 3px; border: 1px solid #ffffff0c; border-radius: 11px; background: #090a1180; }
+.language-choice { min-height: 35px; padding: 0 12px; border: 1px solid transparent; border-radius: 8px; color: #8c8e9c; background: transparent; font-size: 11px; font-weight: 650; transition: background .18s, color .18s, border-color .18s; }
+.language-choice:hover { background: #ffffff07; color: var(--text); }
+.language-choice.is-selected, .language-choice[aria-pressed="true"] { color: var(--lime); border-color: #d4ff6320; background: #d4ff630d; box-shadow: 0 2px 8px #0002; }
+.sound-toggle { position: relative; display: inline-flex; align-items: center; justify-content: flex-start; gap: 10px; flex-shrink: 0; min-width: 100px; min-height: 40px; padding: 9px 13px; border: 1px solid #ffffff12; border-radius: 11px; background: #ffffff04; color: #8e909e; font-size: 11px; font-weight: 650; transition: background .18s, color .18s, border-color .18s; }
+.sound-toggle::before { content: ""; display: block; width: 28px; height: 16px; flex-shrink: 0; border-radius: 20px; background: #ffffff16; transition: background .18s; }
+.sound-toggle::after { content: ""; position: absolute; top: calc(50% - 5px); left: 17px; width: 10px; height: 10px; border-radius: 50%; background: #8e909e; transition: transform .18s, background .18s; }
+.sound-toggle:hover { border-color: #a38aff40; }
+.sound-toggle[aria-pressed="true"] { color: var(--lime); border-color: #d4ff6330; background: #d4ff6309; }
+.sound-toggle[aria-pressed="true"]::before { background: var(--lime); }
+.sound-toggle[aria-pressed="true"]::after { background: #253212; transform: translateX(12px); }
+.product.locked { border-color: #ffffff08; background: #ffffff02; }
+.product.locked:hover { transform: none; border-color: #ffffff0f; background: #ffffff03; }
+.product.locked .product-icon { color: #747685; border-color: #ffffff0a; background: #ffffff04; }
+.product.locked .product-type { color: #686b7b; }
+.product.locked h3 { color: #a2a4b1; }
+.product.locked p { color: #777a89; }
+.lock-note { display: block; margin-top: 8px; color: #c3a87f; font-size: 10px; line-height: 1.5; }
+.lock-note:empty { display: none; }
+.product.locked .buy-btn:disabled { border-color: #ffffff0b; color: #858795; background: #ffffff03; }
+.product.owned .lock-note { color: #9fbf79; }
+.event-banner { width: min(500px, 100%); margin-top: 18px; padding: 16px 19px; border: 1px solid #a38aff3b; border-radius: 14px; background: linear-gradient(120deg, #a38aff13, #a38aff05); text-align: left; box-shadow: 0 8px 35px #0001; animation: tag-in .25s ease-out both; }
+.event-heading { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+.event-title { min-width: 0; color: #c5b7ff; font-size: 13px; font-weight: 750; line-height: 1.4; letter-spacing: -.15px; }
+.event-timer { flex-shrink: 0; min-width: 49px; padding: 5px 8px; border: 1px solid #a38aff24; border-radius: 7px; color: #d0c6f4; background: #a38aff0d; font-size: 12px; font-weight: 700; line-height: 1.2; text-align: center; font-variant-numeric: tabular-nums; }
+.event-description { margin: 8px 0 0; color: #9893ab; font-size: 11px; line-height: 1.55; overflow-wrap: break-word; }
+.event-progress { overflow: hidden; height: 4px; margin-top: 12px; border-radius: 4px; background: #a38aff13; }
+.event-progress > i { display: block; width: 0; height: 100%; border-radius: inherit; background: var(--purple); box-shadow: 0 0 10px #a38aff40; transition: width .15s linear; }
+.event-banner.success, .event-banner[data-state="success"] { border-color: #d4ff6338; background: linear-gradient(120deg, #d4ff6310, #d4ff6304); }
+.event-banner.success .event-title, .event-banner[data-state="success"] .event-title { color: var(--lime); }
+.event-banner.success .event-description, .event-banner[data-state="success"] .event-description { color: #a3ae8f; }
+.event-banner.success .event-timer, .event-banner[data-state="success"] .event-timer { color: #c3db9d; border-color: #d4ff6325; background: #d4ff6309; }
+.event-banner.success .event-progress > i, .event-banner[data-state="success"] .event-progress > i { background: var(--lime); box-shadow: 0 0 10px #d4ff6333; }
+.event-banner.failure, .event-banner[data-state="failure"], .event-banner.failed, .event-banner[data-state="failed"] { border-color: #ff876b35; background: linear-gradient(120deg, #ff876b10, #ff876b04); }
+.event-banner.failure .event-title, .event-banner[data-state="failure"] .event-title, .event-banner.failed .event-title, .event-banner[data-state="failed"] .event-title { color: #ffad96; }
+.event-banner.failure .event-description, .event-banner[data-state="failure"] .event-description, .event-banner.failed .event-description, .event-banner[data-state="failed"] .event-description { color: #b5a19d; }
+.attack-overlay { position: fixed; inset: 0; z-index: 20; pointer-events: none; background: radial-gradient(ellipse at center, #c9283706 20%, #a00e2552 100%); box-shadow: inset 0 0 100px #b8102425; animation: attack-arrive .26s ease-out both; }
+.attack-status { position: fixed; display: flex; align-items: center; justify-content: center; gap: 10px; z-index: 31; left: 50%; bottom: 28px; transform: translateX(-50%); max-width: calc(100vw - 36px); padding: 11px 18px; border: 1px solid #ff607260; border-radius: 11px; color: #ffb0ba; background: #2c111ce8; box-shadow: 0 8px 35px #0005, 0 0 30px #ff425414; font-size: 12px; font-weight: 750; line-height: 1.5; letter-spacing: .3px; text-align: center; pointer-events: none; animation: attack-arrive .2s ease-out both; }
+.attack-title { min-width: 0; font-weight: 800; }
+#attack-time { flex-shrink: 0; padding-left: 10px; border-left: 1px solid #ff607238; color: #ffe0e5; font-variant-numeric: tabular-nums; }
+body.attack-active { background: #160c13; }
+body.attack-active .page { animation: attack-shake .38s linear infinite; }
+body.attack-active .ambient { background: radial-gradient(ellipse at 50% 45%, #ff30491c, transparent 58%), radial-gradient(ellipse at 95% 12%, #9c254c17, transparent 60%); animation: none; }
+body.attack-active #score-wrap { animation: score-rattle .24s linear infinite; }
+body.attack-active .score { color: #ffb4bf; text-shadow: 0 0 25px #ff425445, 2px 2px #571a2b; }
+body.attack-active .orbit { border-color: #ff607222; }
+body.attack-active .orbit::after { background: #ff8296; box-shadow: 0 0 12px #ff425466; }
+body.attack-active .score-label { color: #c77b88; }
+body.attack-active .mini-star { color: #ff7c93; }
+
+@keyframes reveal { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes ambient-breathe { from { opacity: .6; } to { opacity: 1; } }
+@keyframes beacon { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
+@keyframes orbit-turn { to { transform: rotate(360deg); } }
+@keyframes bolt-float { 0%, 100% { transform: translateY(0) rotate(-5deg); } 50% { transform: translateY(-7px) rotate(3deg); } }
+@keyframes star-shine { 0%, 100% { opacity: .4; transform: scale(.85) rotate(0); } 50% { opacity: .85; transform: scale(1.1) rotate(12deg); } }
+@keyframes mouse-scroll { 0%, 100% { transform: translateY(0); opacity: 1; } 60% { transform: translateY(3px); opacity: .3; } }
+@keyframes tag-in { from { opacity: 0; transform: translateY(5px) scale(.9); } to { opacity: 1; transform: translateY(0) scale(1); } }
+@keyframes modal-in { from { opacity: 0; transform: translateY(20px) scale(.96); } to { opacity: 1; transform: translateY(0) scale(1); } }
+@keyframes modal-out { to { opacity: 0; transform: translateY(10px) scale(.97); } }
+@keyframes backdrop-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes backdrop-out { to { opacity: 0; } }
+@keyframes click-ripple { from { opacity: .9; transform: scale(.3); } to { opacity: 0; transform: scale(2.3); } }
+@keyframes click-spark { from { opacity: 1; transform: translate(0, 0) scale(1); } to { opacity: 0; transform: translate(var(--dx, 25px), var(--dy, -25px)) rotate(110deg) scale(.2); } }
+@keyframes number-float { 0% { opacity: 0; transform: translate(-50%, -5px) scale(.7); } 15% { opacity: 1; transform: translate(-50%, -15px) scale(1.08); } 100% { opacity: 0; transform: translate(calc(-50% + var(--drift, 0px)), -85px) scale(.9); } }
+@keyframes attack-arrive { from { opacity: 0; } to { opacity: 1; } }
+@keyframes attack-shake { 0%, 100% { transform: translate(0, 0); } 16% { transform: translate(-2px, 1px); } 33% { transform: translate(2px, -1px); } 50% { transform: translate(-1px, -2px); } 66% { transform: translate(2px, 1px); } 83% { transform: translate(-2px, 0); } }
+@keyframes score-rattle { 0%, 100% { translate: 0 0; } 25% { translate: 2px -1px; } 50% { translate: -2px 1px; } 75% { translate: 1px 1px; } }
+
+@media (min-width: 1500px) {
+  .page { padding-right: max(90px, calc((100vw - 1400px) / 2)); padding-left: max(90px, calc((100vw - 1400px) / 2)); }
+  main { padding-top: 55px; padding-bottom: 55px; }
+}
+@media (max-height: 800px) and (min-width: 761px) {
+  .page { padding-top: 18px; }
+  main { padding: 23px 0; min-height: 480px; }
+  h1 { font-size: 38px; margin-top: 13px; }
+  .arena { height: 260px; margin: 0; }
+  .orbit { top: -10px; }
+  .orbit.second { top: -39px; }
+  .orbit.third { top: 19px; }
+  .bolt { top: 18px; width: 48px; height: 60px; }
+  .score { font-size: 115px; }
+  .click-hint { margin-top: 18px; }
+  .stat { padding-top: 20px; padding-bottom: 20px; }
+  .next { padding-top: 17px; padding-bottom: 17px; }
+  footer { min-height: 49px; }
+}
+@media (max-width: 1000px) {
+  .page { padding-left: 32px; padding-right: 32px; }
+  .dashboard { grid-template-columns: 1fr 1fr 1.25fr; }
+  .stat { padding: 22px 18px; gap: 11px; }
+  .stat-icon { width: 34px; height: 38px; font-size: 21px; }
+  .next { padding: 20px; }
+  .stat-value { font-size: 19px; }
+  .stat-value small { font-size: 10px; }
+  .stat-label { font-size: 7px; letter-spacing: 1px; }
+  .progress-caption { font-size: 7px; }
+}
+@media (max-width: 760px) {
+  .page { padding: 20px 24px 0; }
+  header { min-height: 49px; }
+  .brand-mark { width: 35px; height: 39px; border-radius: 10px; font-size: 36px; }
+  .brand { gap: 9px; }
+  .brand-text { font-size: 15px; }
+  .edition { font-size: 6px; letter-spacing: 1.7px; }
+  .header-right { gap: 8px; }
+  .settings-btn { min-height: 42px; padding: 0 14px; border-radius: 11px; font-size: 12px; gap: 7px; }
+  .settings-btn svg { width: 17px; height: 17px; }
+  .icon-btn { width: 40px; height: 42px; border-radius: 11px; }
+  .shop-btn { min-height: 42px; padding: 0 15px; border-radius: 11px; font-size: 12px; gap: 6px; }
+  .shop-btn svg { width: 17px; height: 20px; }
+  main { padding: 39px 0 30px; min-height: 520px; }
+  h1 { font-size: 38px; letter-spacing: -1.5px; }
+  .eyebrow { font-size: 8px; letter-spacing: 1.8px; }
+  .side-label { display: none; }
+  .score { font-size: 120px; }
+  .ghost { font-size: 190px; letter-spacing: -13px; }
+  .combo { left: calc(50% + 115px); font-size: 13px; }
+  .combo small { font-size: 5px; letter-spacing: .8px; }
+  .dashboard { grid-template-columns: 1fr 1fr; }
+  .stat { padding: 21px; }
+  .stat-value { font-size: 22px; }
+  .next { grid-column: 1 / -1; border-left: 0; border-top: 1px solid #ffffff08; border-radius: 0 0 18px 18px; padding: 18px 22px; }
+  .next-name { font-size: 14px; }
+  .progress-caption { font-size: 8px; }
+  .next .stat-label { font-size: 8px; }
+  footer { min-height: 59px; }
+  .footer-note { display: none; }
+  .modal-head { padding: 23px 23px 18px; }
+  .products { padding: 16px; }
+  .product { gap: 11px; padding: 14px; grid-template-columns: 40px minmax(0, 1fr) auto; }
+  .product-icon { width: 40px; height: 43px; font-size: 19px; }
+  .product h3 { font-size: 13px; }
+  .product p { font-size: 10px; }
+  .buy-btn { min-width: 88px; padding: 10px; font-size: 12px; }
+}
+@media (max-width: 600px) {
+  header { flex-wrap: wrap; gap: 15px; }
+  .header-right { width: 100%; }
+  .header-right .settings-btn, .header-right .shop-btn { flex: 1; justify-content: center; min-height: 44px; padding-left: 12px; padding-right: 12px; }
+  .event-banner { padding: 14px 16px; margin-top: 15px; }
+  .event-title { font-size: 12px; }
+  .event-description { font-size: 10px; }
+  #settings .settings-inner { padding: 5px 22px 20px; }
+  .setting-row { gap: 14px; }
+  .setting-row strong, .setting-row h3 { font-size: 13px; }
+  .setting-row p, .setting-row small { font-size: 10px; }
+}
+@media (max-width: 480px) {
+  .page { padding: 16px 18px 0; }
+  .brand-text { font-size: 12px; letter-spacing: -.3px; }
+  .edition { font-size: 5px; letter-spacing: 1.2px; }
+  .brand-mark { width: 30px; height: 35px; border-radius: 9px; font-size: 32px; }
+  .brand { gap: 7px; }
+  .shop-btn { padding: 0 11px; font-size: 11px; }
+  .settings-btn { font-size: 11px; }
+  .icon-btn { width: 35px; }
+  .icon-btn svg { width: 18px; }
+  .header-right { gap: 6px; }
+  .shop-count { min-width: 16px; height: 17px; padding: 0 4px; font-size: 9px; margin-left: 0; }
+  main { min-height: 508px; padding-top: 37px; padding-bottom: 29px; }
+  h1 { font-size: 32px; letter-spacing: -1.4px; margin-top: 17px; }
+  .eyebrow { font-size: 7px; letter-spacing: 1.4px; }
+  .arena { height: 270px; margin-top: 11px; padding-top: 55px; }
+  .orbit { width: 250px; height: 250px; left: calc(50% - 125px); top: 9px; }
+  .orbit.second { width: 298px; height: 298px; left: calc(50% - 149px); top: -15px; }
+  .orbit.third { width: 204px; height: 204px; left: calc(50% - 102px); top: 32px; }
+  .bolt { top: 25px; width: 49px; height: 62px; }
+  .score { font-size: clamp(76px, 25vw, 108px); letter-spacing: -6px; }
+  .score-label { font-size: 9px; }
+  .mini-star.one { left: 31px; top: 45px; }
+  .mini-star.two { right: 18px; top: 84px; font-size: 23px; }
+  .mini-star.three { left: 13px; bottom: 40px; }
+  .combo { left: auto; right: 3px; top: 45%; font-size: 11px; }
+  .combo small { display: none; }
+  .gain { font-size: 10px; gap: 5px; }
+  .gain > span { margin: 0 2px; }
+  .click-formula { padding: 0 5px; font-size: 9px; }
+  .active-upgrades { margin-top: 7px; min-height: 30px; gap: 5px; }
+  .upgrade-tag { padding: 4px 6px; font-size: 8px; }
+  .empty-upgrades { font-size: 10px; }
+  .click-hint { margin-top: 22px; font-size: 9px; gap: 4px; }
+  .stat { padding: 18px 13px; gap: 9px; }
+  .stat-icon { width: 30px; height: 34px; border-radius: 9px; font-size: 20px; }
+  .stat-label { font-size: 6px; letter-spacing: .9px; }
+  .stat-value { font-size: 19px; }
+  .stat-value small { font-size: 8px; margin-left: 4px; }
+  .next { padding: 16px 17px; }
+  .next .stat-label { font-size: 7px; }
+  .progress-caption { font-size: 7px; }
+  footer { min-height: 52px; font-size: 8px; }
+  dialog { width: calc(100vw - 20px); max-height: calc(100dvh - 24px); border-radius: 18px; }
+  .modal-inner { max-height: calc(100dvh - 24px); }
+  .modal-head { padding: 20px 18px 16px; }
+  h2 { font-size: 30px; }
+  .modal-kicker { font-size: 7px; letter-spacing: 1.7px; }
+  .modal-sub { margin-top: 13px; font-size: 9px; gap: 8px; }
+  .wallet { font-size: 14px; }
+  .wallet small { font-size: 9px; }
+  .products { padding: 12px; gap: 8px; }
+  .product { grid-template-columns: 34px minmax(0, 1fr); gap: 10px; padding: 13px; }
+  .product-icon { width: 34px; height: 38px; font-size: 18px; border-radius: 9px; align-self: start; margin-top: 3px; }
+  .product-type { font-size: 6px; letter-spacing: 1.1px; }
+  .product h3 { font-size: 13px; }
+  .product p { margin-top: 4px; font-size: 10px; }
+  .buy-btn { grid-column: 2; justify-self: start; display: flex; align-items: center; gap: 7px; min-width: 112px; padding: 9px 12px; font-size: 11px; }
+  .buy-btn small { margin-top: 0; font-size: 8px; }
+  .modal-foot { padding: 8px 18px 14px; font-size: 8px; line-height: 1.6; }
+  .shop-notice { font-size: 10px; }
+  .toast { font-size: 11px; bottom: 18px; }
+  #settings { width: calc(100vw - 20px); }
+  #settings .settings-inner { padding: 0 18px 17px; }
+  .setting-row { flex-wrap: wrap; padding: 19px 0; gap: 12px; }
+  .setting-row > :first-child { flex: 1 1 100%; }
+  .language-options { width: 100%; }
+  .language-choice { flex: 1; min-height: 37px; }
+  .sound-toggle { min-width: 112px; }
+  .lock-note { font-size: 9px; }
+  .event-banner { padding: 12px 14px; border-radius: 12px; }
+  .event-heading { gap: 10px; }
+  .event-title { font-size: 11px; }
+  .event-timer { font-size: 11px; min-width: 44px; }
+  .event-description { font-size: 10px; }
+  .attack-status { bottom: 18px; padding: 10px 13px; font-size: 10px; width: max-content; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+  body.attack-active .page, body.attack-active #score-wrap, .attack-overlay, .attack-status { animation: none !important; transform: none; translate: none; }
+  .attack-status { transform: translateX(-50%); }
+}
+
+</style>
+
+
+
+</head>
+<body>
+<div class="page" id="game-page">
+<div class="grid" aria-hidden="true"></div><div class="ambient" aria-hidden="true"></div>
+<header>
+<div class="brand"><div class="brand-mark" aria-hidden="true">ϟ</div><div class="brand-text">EPIC CLICKER<span>!</span><span class="edition" data-i18n="edition">МАЛЕНЬКИЕ КЛИКИ. БОЛЬШАЯ ЭНЕРГИЯ.</span></div></div>
+<div class="header-right">
+<button class="settings-btn" id="settings-btn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 17h16M8 4v6m8 4v6"/></svg><span data-i18n="settings">Настройки</span></button>
+<button class="shop-btn" id="shop-btn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m13 3-8 11h6l-1 7 9-12h-7z"/></svg><span data-i18n="upgrades">Прокачка</span><span class="shop-count" id="shop-count"></span></button>
+</div>
+</header>
+<main>
+<div class="eyebrow"><i></i><span data-i18n="eyebrow">КАЖДЫЙ КЛИК — ЭТО ЭНЕРГИЯ</span></div>
+<h1><span data-i18n="hero">Сделай это </span><em data-i18n="epic">эпично.</em></h1>
+<div class="ghost" aria-hidden="true">CLICK!</div>
+<div class="side-label left" aria-hidden="true"><span data-i18n="side">БОЛЬШЕ КЛИКОВ / БОЛЬШЕ МОЩИ</span></div>
+<div class="side-label right" aria-hidden="true">EPIC CLICKER <span> / </span> VOL. 002</div>
+<div class="arena" id="arena">
+<div class="orbit" aria-hidden="true"></div><div class="orbit second" aria-hidden="true"></div><div class="orbit third" aria-hidden="true"></div>
+<span class="mini-star one" aria-hidden="true">✦</span><span class="mini-star two" aria-hidden="true">✧</span><span class="mini-star three" aria-hidden="true">✦</span>
+<div class="bolt" aria-hidden="true"><svg viewBox="0 0 70 88"><defs><linearGradient id="bolt-fill" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#edffad"/><stop offset="1" stop-color="#b8eb3d"/></linearGradient></defs><path d="M40 5 10 49h21l-5 34 35-49H39z" fill="#839c3e" transform="translate(3 3)"/><path d="M40 5 10 49h21l-5 34 35-49H39z" fill="url(#bolt-fill)" stroke="#efffb7" stroke-width="1.5"/></svg></div>
+<div class="score-wrap" id="score-wrap"><div class="score" id="score" aria-label="Баланс: 0 кликов">0</div></div>
+<div class="score-label" data-i18n="clicksCaps">КЛИКОВ</div>
+</div>
+<div class="combo" id="combo" aria-hidden="true"><span id="combo-title">ПОГНАЛИ!</span><small data-i18n="rhythm">ЛОВИ СВОЙ РИТМ</small></div>
+<div class="gain"><svg viewBox="0 0 12 18" aria-hidden="true"><path d="m7 0-7 10h5l-1 8 8-11H7z"/></svg><b id="click-gain">+1</b><span data-i18n="perPress">за нажатие</span><span>·</span><b id="auto-gain">0</b><span data-i18n="autoPerSecond">в секунду авто</span></div>
+<div class="click-formula" id="click-formula">Базовый клик: +1</div>
+<div class="active-upgrades" id="active-upgrades"><span class="empty-upgrades">Твоя эпичная история только начинается</span></div>
+<div class="event-banner" id="event-banner" hidden><div class="event-heading"><strong class="event-title" id="event-title"></strong><span class="event-timer" id="event-timer"></span></div><p class="event-description" id="event-description"></p><div class="event-progress" id="event-progress"><i id="event-progress-fill"></i></div></div>
+<div class="click-hint"><span class="mouse" aria-hidden="true"></span><span data-i18n="clickHint">Жми ЛКМ в любом месте — и погнали!</span></div>
+</main>
+<section class="dashboard" data-i18n-aria="statistics" aria-label="Статистика игры">
+<div class="stat"><div class="stat-icon" aria-hidden="true">↗</div><div><div class="stat-label" data-i18n="totalEarned">ВСЕГО ЗАРАБОТАНО</div><div class="stat-value" id="lifetime">0 <small>кликов</small></div></div></div>
+<div class="stat"><div class="stat-icon" aria-hidden="true">↻</div><div><div class="stat-label" data-i18n="autoclickers">АВТОКЛИКЕРЫ</div><div class="stat-value"><span id="auto-count">0</span><small data-i18n="activeOfThree">из 3 активны</small></div><div class="auto-lights" aria-hidden="true"><span class="auto-track"><i id="auto-slow-progress"></i></span><span class="auto-track"><i id="auto-fast-progress"></i></span><span class="auto-track"><i id="auto-ultra-progress"></i></span></div></div></div>
+<button class="next" id="next-upgrade"><div class="stat-label" data-i18n="nextUpgrade">СЛЕДУЮЩАЯ ПРОКАЧКА</div><div class="next-top"><span class="next-name" id="next-name">0,5× бонус</span><span class="next-arrow" aria-hidden="true">↗</span></div><div class="progress"><i id="next-progress"></i></div><div class="progress-caption"><span id="next-description"></span><b id="next-price">0 / 10</b></div></button>
+</section>
+<footer><span class="save-status" id="save-status"><i></i>Прогресс сохраняется автоматически</span><span class="footer-note" data-i18n="footer">МЕНЬШЕ СЛОВ. БОЛЬШЕ КЛИКОВ.</span></footer>
+</div>
+<div class="effects" id="effects" aria-hidden="true"></div>
+<div class="attack-overlay" id="attack-overlay" hidden aria-hidden="true"></div>
+<div class="attack-status" id="attack-status" hidden><strong class="attack-title" data-i18n="attackTitle">ЭПИЧЕСКАЯ АТАКА</strong><span id="attack-time"></span></div>
+<dialog id="shop" aria-labelledby="shop-title">
+<div class="modal-inner">
+<div class="modal-head"><div class="modal-title-row"><div><div class="modal-kicker" data-i18n="shopKicker">ПОДНИМИ СВОЙ УРОВЕНЬ</div><h2 id="shop-title"><span data-i18n="upgrades">Прокачка</span><span style="color:var(--lime)">.</span></h2></div><button class="close-btn" id="close-shop" data-i18n-aria="closeShop" aria-label="Закрыть магазин">×</button></div><div class="modal-sub"><span data-i18n="shopSubtitle">Маленькие апгрейды. Большая энергия.</span><span class="wallet"><span id="shop-balance">0</span><small data-i18n="clicks">кликов</small></span></div></div>
+<div class="products" id="products"></div>
+<div class="modal-foot"><div class="shop-notice" id="shop-notice" role="status" aria-live="polite"></div><span data-i18n="shopFoot">Покупки открываются по порядку. Купленные улучшения остаются активными.</span></div>
+</div>
+</dialog>
+<dialog id="settings" aria-labelledby="settings-title"><div class="settings-inner"><div class="modal-head"><div class="modal-title-row"><div><div class="modal-kicker" data-i18n="settingsKicker">ТВОЯ ИГРА. ТВОИ ПРАВИЛА.</div><h2 id="settings-title" data-i18n="settings">Настройки</h2></div><button class="close-btn" id="close-settings" data-i18n-aria="closeSettings" aria-label="Закрыть настройки">×</button></div></div><div class="setting-row"><div><strong data-i18n="language">Язык</strong><p data-i18n="languageHint">Меняется сразу во всей игре</p></div><div class="language-options" role="group" data-i18n-aria="language" aria-label="Язык"><button class="language-choice" data-language="ru" lang="ru" aria-pressed="true">Русский</button><button class="language-choice" data-language="en" lang="en" aria-pressed="false">English</button></div></div><div class="setting-row"><div><strong data-i18n="sound">Звук</strong><p data-i18n="soundHint">Клики, покупки и эпические моменты</p></div><button class="sound-toggle" id="sound-toggle" aria-pressed="false">Выключен</button></div><p class="settings-note" data-i18n="settingsNote">Настройки и прогресс сохраняются автоматически. События и атака ждут, пока ты в меню.</p></div></dialog>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script>
+(function (root, factory) {
+  "use strict";
+  const api = factory();
+  if (typeof module === "object" && module.exports) module.exports = api;
+  else root.EpicEngine = api;
+})(typeof globalThis !== "undefined" ? globalThis : this, function () {
+  "use strict";
+
+  const PRODUCTS = Object.freeze([
+    { id: "half", title: "0,5× нажатие", cost: 10, type: "УСИЛЕНИЕ КЛИКА", icon: "◈", badge: "+0,5 за клик",
+      desc: "Добавляет 0,5 к доходу одного нажатия: базовый 1 + 0,5 = 1,5 клика." },
+    { id: "autoSlow", title: "Авто-клик", cost: 100, type: "АВТОМАТИЗАЦИЯ", icon: "◷", badge: "+1 / 5 сек",
+      desc: "Начисляет +1 клик каждые 5 секунд.", interval: 5000, amount: 1 },
+    { id: "power", title: "КЛИК СТЕПЕНИ!!!", cost: 500, type: "ЭПИЧЕСКАЯ СИЛА", icon: "ϟ", badge: "+5 за клик",
+      desc: "Ещё +5 кликов за нажатие и пять маленьких +1 возле курсора." },
+    { id: "multiplier", title: "1,5× нажатие", cost: 1000, type: "УСИЛЕНИЕ КЛИКА", icon: "✧", badge: "+1,5 за клик",
+      desc: "Добавляет ещё 1,5 к каждому нажатию. Складывается с другими усилениями." },
+    { id: "autoFast", title: "Авто-кликер PRO", cost: 1500, type: "АВТОМАТИЗАЦИЯ", icon: "»", badge: "+5 / 2 сек",
+      desc: "Начисляет +5 каждые 2 секунды. Работает вместе с другими автокликерами.", interval: 2000, amount: 5 },
+    { id: "extra", title: "ЭКСТРА КЛИК +1", cost: 2000, type: "БОНУС К КЛИКУ", icon: "+", badge: "+1 за клик",
+      desc: "Прибавляет ещё один клик к каждому ручному нажатию." },
+    { id: "attack", title: "ЭПИЧЕСКАЯ АТАКА", cost: 3000, type: "ЭПИЧЕСКАЯ СИЛА", icon: "✹", badge: "Атака: 50% / 10 кликов",
+      desc: "Каждое десятое нажатие: 50% шанс атаки на 3 секунды. До +600 кликов!" },
+    { id: "double", title: "2× нажатие", cost: 4000, type: "УСИЛЕНИЕ КЛИКА", icon: "×", badge: "+2 за клик",
+      desc: "Добавляет ещё 2 клика к каждому нажатию. Складывается с другими усилениями." },
+    { id: "events", title: "События", cost: 5000, type: "СЛУЧАЙНЫЕ СОБЫТИЯ", icon: "✦", badge: "События включены",
+      desc: "Каждые 35–55 секунд: удвоения, золотой дождь, задания, удача и неудача." },
+    { id: "ultra", title: "УЛЬТРА АВТОКЛИК", cost: 6000, type: "АВТОМАТИЗАЦИЯ", icon: "»", badge: "+100 / 3 сек",
+      desc: "Начисляет +100 кликов каждые 3 секунды.", interval: 3000, amount: 100 }
+  ].map(Object.freeze));
+
+  const AUTO_PRODUCTS = PRODUCTS.filter(product => product.interval);
+  const EVENTS = Object.freeze({
+    doubleDay: Object.freeze({ durationMs: 8000, target: 0 }),
+    goldenRain: Object.freeze({ durationMs: 8000, target: 0 }),
+    marathon: Object.freeze({ durationMs: 15000, target: 25 }),
+    overload: Object.freeze({ durationMs: 10000, target: 10 }),
+    luckyPulse: Object.freeze({ durationMs: 6000, target: 0 })
+  });
+  const EVENT_IDS = Object.keys(EVENTS);
+  // BigInt quarter-clicks keep even old, exponentially grown saves exact.
+  // A fixed Number cap used to make every source of income stop at +0.
+  const EPSILON = 0.000001;
+  const MAX_ADVANCE_MS = 86400000;
+
+  function createGame(saved, options = {}) {
+    const data = saved && typeof saved === "object" ? saved : {};
+    const randomSource = typeof options.random === "function" ? options.random : Math.random;
+    function random() {
+      const value = randomSource();
+      return Number.isFinite(value) ? Math.max(0, Math.min(1 - Number.EPSILON, value)) : 0.5;
+    }
+    const validNumber = (value, low, high) => Number.isFinite(value) && value >= low && value <= high;
+    function toUnits(value) {
+      if (!Number.isFinite(value) || value < 0) return 0n;
+      // Multiplying a huge finite legacy Number by four can overflow first.
+      return value <= Number.MAX_SAFE_INTEGER / 4
+        ? BigInt(Math.round(value * 4)) : BigInt(Math.trunc(value)) * 4n;
+    }
+    function readUnits(exact, legacy) {
+      return typeof exact === "string" && /^\d+$/.test(exact) ? BigInt(exact) : toUnits(legacy);
+    }
+    function unitsToNumber(units) {
+      const negative = units < 0n;
+      const magnitude = negative ? -units : units;
+      const whole = Number(magnitude / 4n);
+      const amount = Number.isFinite(whole)
+        ? Math.min(Number.MAX_VALUE, whole + Number(magnitude % 4n) / 4) : Number.MAX_VALUE;
+      return negative ? -amount : amount;
+    }
+    let balanceUnits = readUnits(data.balanceUnits, data.balance);
+    let earnedUnits = readUnits(data.earnedUnits, data.earned ?? data.lifetimeEarned);
+    if (earnedUnits < balanceUnits) earnedUnits = balanceUnits;
+    let manualClicks = Number.isSafeInteger(data.manualClicks) && data.manualClicks >= 0 ? data.manualClicks : 0;
+    const owned = new Set(Array.isArray(data.owned)
+      ? data.owned.filter(id => PRODUCTS.some(product => product.id === id)) : []);
+    const timers = { autoSlow: 0, autoFast: 0, ultra: 0 };
+    const notices = [];
+    for (const product of AUTO_PRODUCTS) {
+      const elapsed = data.autoProgress && data.autoProgress[product.id];
+      if (owned.has(product.id) && validNumber(elapsed, 0, product.interval - EPSILON)) timers[product.id] = elapsed;
+    }
+
+    const savedAttack = data.attack && typeof data.attack === "object" ? data.attack : {};
+    const attackState = {
+      elapsedMs: owned.has("attack") && validNumber(savedAttack.elapsedMs, 0, 3000) ? savedAttack.elapsedMs : 0,
+      remainingMs: 0,
+      cycleClicks: owned.has("attack") && Number.isInteger(savedAttack.cycleClicks)
+        ? Math.max(0, Math.min(9, savedAttack.cycleClicks)) : 0
+    };
+    if (owned.has("attack") && savedAttack.active === true && attackState.elapsedMs < 3000) {
+      attackState.remainingMs = 3000 - attackState.elapsedMs;
+    } else attackState.elapsedMs = 0;
+    let attackPaidTicks = Math.floor((attackState.elapsedMs + EPSILON) / 100);
+
+    const nextDelay = () => 35000 + Math.floor(random() * 20001);
+    let eventCountdown = owned.has("events")
+      ? validNumber(data.eventCountdown, 0, 55000) ? data.eventCountdown : nextDelay() : 0;
+    let eventState = null;
+    const savedEvent = data.event;
+    if (owned.has("events") && savedEvent && Object.prototype.hasOwnProperty.call(EVENTS, savedEvent.id)) {
+      const definition = EVENTS[savedEvent.id];
+      if (validNumber(savedEvent.remainingMs, EPSILON, definition.durationMs)) {
+        eventState = {
+          id: savedEvent.id,
+          remainingMs: savedEvent.remainingMs,
+          durationMs: definition.durationMs,
+          progress: Number.isInteger(savedEvent.progress)
+            ? Math.max(0, Math.min(definition.target, savedEvent.progress)) : 0,
+          target: definition.target,
+          outcome: ["success", "failure", "neutral"].includes(savedEvent.outcome) ? savedEvent.outcome : null,
+          amount: Number.isFinite(savedEvent.amount) ? savedEvent.amount : 0,
+          rainElapsedMs: validNumber(savedEvent.rainElapsedMs, 0, 500 - EPSILON) ? savedEvent.rainElapsedMs : 0
+        };
+        if (definition.target) eventState.outcome = null;
+      }
+    }
+
+    function clickBoost() {
+      return (owned.has("half") ? 0.5 : 0) + (owned.has("multiplier") ? 1.5 : 0) + (owned.has("double") ? 2 : 0);
+    }
+
+    function base() {
+      return 1 + clickBoost();
+    }
+
+    function perClick() {
+      const bonus = (owned.has("power") ? 5 : 0) + (owned.has("extra") ? 1 : 0);
+      return base() + bonus;
+    }
+
+    function credit(units) {
+      const requested = typeof units === "bigint" ? units : BigInt(Math.round(units));
+      const actual = requested > 0n ? requested : 0n;
+      balanceUnits += actual;
+      earnedUnits += actual;
+      return unitsToNumber(actual);
+    }
+
+    function debitUnits(units) {
+      const actual = balanceUnits < units ? balanceUnits : units;
+      balanceUnits -= actual;
+      return -unitsToNumber(actual);
+    }
+
+    function isUnlocked(id) {
+      const index = PRODUCTS.findIndex(product => product.id === id);
+      return index >= 0 && (owned.has(id) || PRODUCTS.slice(0, index).every(product => owned.has(product.id)));
+    }
+
+    function finishEvent(outcome) {
+      if (!eventState) return;
+      const state = eventState;
+      if (state.target) {
+        if (outcome === "success") state.amount = credit((state.id === "marathon" ? 250 : 150) * 4);
+        else {
+          const tenth = (balanceUnits + 5n) / 10n;
+          state.amount = debitUnits(state.id === "marathon" ? 400n : tenth < 800n ? tenth : 800n);
+        }
+      }
+      state.outcome = outcome || state.outcome || "neutral";
+      notices.push({ kind: "event-end", eventId: state.id, outcome: state.outcome, amount: state.amount });
+      eventState = null;
+      eventCountdown = nextDelay();
+    }
+
+    function startEvent() {
+      const id = EVENT_IDS[Math.floor(random() * EVENT_IDS.length)];
+      const definition = EVENTS[id];
+      eventState = {
+        id, remainingMs: definition.durationMs, durationMs: definition.durationMs,
+        progress: 0, target: definition.target, outcome: null, amount: 0, rainElapsedMs: 0
+      };
+      if (id === "doubleDay") {
+        eventState.amount = credit(balanceUnits);
+        eventState.outcome = "success";
+      } else if (id === "luckyPulse") {
+        const lucky = random() < 0.5;
+        eventState.amount = lucky ? credit(300 * 4) : debitUnits(400n);
+        eventState.outcome = lucky ? "success" : "failure";
+      }
+      notices.push({ kind: "event-start", eventId: id, outcome: eventState.outcome, amount: eventState.amount });
+    }
+
+    function advanceAutos(elapsedMs) {
+      for (const product of AUTO_PRODUCTS) {
+        if (!owned.has(product.id)) continue;
+        timers[product.id] += elapsedMs;
+        const ticks = Math.floor((timers[product.id] + EPSILON) / product.interval);
+        if (ticks) {
+          timers[product.id] = Math.max(0, timers[product.id] - ticks * product.interval);
+          credit(ticks * product.amount * 4);
+        }
+      }
+    }
+
+    function advance(elapsedMs, settings = {}) {
+      if (!Number.isFinite(elapsedMs) || elapsedMs <= 0) return 0;
+      const before = balanceUnits;
+      let remaining = Math.min(elapsedMs, MAX_ADVANCE_MS);
+      if (settings.eventsActive === false) {
+        advanceAutos(remaining);
+        return unitsToNumber(balanceUnits - before);
+      }
+
+      // Process boundaries chronologically: doubleDay must not multiply future income.
+      while (remaining > EPSILON) {
+        if (owned.has("events") && !eventState && eventCountdown <= EPSILON) startEvent();
+        let step = remaining;
+        for (const product of AUTO_PRODUCTS) {
+          if (owned.has(product.id)) step = Math.min(step, product.interval - timers[product.id]);
+        }
+        if (attackState.remainingMs > 0) {
+          step = Math.min(step, attackState.remainingMs, (attackPaidTicks + 1) * 100 - attackState.elapsedMs);
+        }
+        if (eventState) {
+          step = Math.min(step, eventState.remainingMs);
+          if (eventState.id === "goldenRain") step = Math.min(step, 500 - eventState.rainElapsedMs);
+        } else if (owned.has("events")) step = Math.min(step, eventCountdown);
+        step = Math.max(EPSILON, step);
+        const attackWasActive = attackState.remainingMs > 0;
+        advanceAutos(step);
+        if (attackWasActive) {
+          attackState.elapsedMs = Math.min(3000, attackState.elapsedMs + step);
+          attackState.remainingMs = Math.max(0, 3000 - attackState.elapsedMs);
+          const completedTicks = Math.floor((attackState.elapsedMs + EPSILON) / 100);
+          while (attackPaidTicks < completedTicks) {
+            attackPaidTicks++;
+            const amount = credit(20 * 4);
+            if (amount) notices.push({ kind: "attack-tick", amount });
+          }
+          if (attackState.remainingMs <= EPSILON) {
+            attackState.remainingMs = 0;
+            notices.push({ kind: "attack-end" });
+          }
+        }
+        if (eventState) {
+          eventState.remainingMs = Math.max(0, eventState.remainingMs - step);
+          if (eventState.id === "goldenRain") {
+            eventState.rainElapsedMs += step;
+            if (eventState.rainElapsedMs >= 500 - EPSILON) {
+              eventState.rainElapsedMs = Math.max(0, eventState.rainElapsedMs - 500);
+              const amount = credit(10 * 4);
+              eventState.amount += amount;
+              if (amount) notices.push({ kind: "event-income", eventId: eventState.id, amount });
+            }
+          }
+          if (eventState.remainingMs <= EPSILON) finishEvent(eventState.target ? "failure" : eventState.outcome || "success");
+        } else if (owned.has("events")) eventCountdown = Math.max(0, eventCountdown - step);
+        remaining = Math.max(0, remaining - step);
+        if (owned.has("events") && !eventState && eventCountdown <= EPSILON) startEvent();
+      }
+      return unitsToNumber(balanceUnits - before);
+    }
+
+    return {
+      // Numeric getters remain convenient for affordability and progress ratios.
+      // Render the exact unit getters when displaying large balances.
+      get balance() { return unitsToNumber(balanceUnits); },
+      get earned() { return unitsToNumber(earnedUnits); },
+      get balanceUnits() { return balanceUnits; },
+      get earnedUnits() { return earnedUnits; },
+      get manualClicks() { return manualClicks; },
+      get owned() { return Array.from(owned); },
+      get attack() {
+        return { active: attackState.remainingMs > 0, remainingMs: attackState.remainingMs,
+          elapsedMs: attackState.elapsedMs, clicksUntilRoll: 10 - attackState.cycleClicks };
+      },
+      get event() {
+        if (!eventState) return null;
+        const { rainElapsedMs, ...state } = eventState;
+        return state;
+      },
+      get eventCountdown() { return eventCountdown; },
+      has(id) { return owned.has(id); },
+      isUnlocked,
+      base,
+      perClick,
+      clickBoost,
+
+      click() {
+        const before = balanceUnits;
+        manualClicks = Math.min(Number.MAX_SAFE_INTEGER, manualClicks + 1);
+        credit(perClick() * 4);
+        if (eventState && eventState.target) {
+          eventState.progress++;
+          if (eventState.progress >= eventState.target) finishEvent("success");
+        }
+        if (owned.has("attack")) {
+          attackState.cycleClicks = (attackState.cycleClicks + 1) % 10;
+          if (attackState.cycleClicks === 0 && !attackState.remainingMs && random() < 0.5) {
+            attackState.elapsedMs = 0;
+            attackState.remainingMs = 3000;
+            attackPaidTicks = 0;
+            notices.push({ kind: "attack-start" });
+          }
+        }
+        return unitsToNumber(balanceUnits - before);
+      },
+
+      buy(id) {
+        const product = PRODUCTS.find(candidate => candidate.id === id);
+        if (!product || owned.has(id) || !isUnlocked(id) || balanceUnits < toUnits(product.cost)) return false;
+        balanceUnits -= toUnits(product.cost);
+        owned.add(id);
+        if (Object.prototype.hasOwnProperty.call(timers, id)) timers[id] = 0;
+        if (id === "attack") {
+          attackState.cycleClicks = 0;
+          attackState.elapsedMs = 0;
+          attackState.remainingMs = 0;
+          attackPaidTicks = 0;
+        }
+        if (id === "events") eventCountdown = nextDelay();
+        return true;
+      },
+
+      advance,
+
+      autoProgress(id) {
+        const product = AUTO_PRODUCTS.find(candidate => candidate.id === id);
+        return product && owned.has(id) ? timers[id] / product.interval : 0;
+      },
+
+      drainNotices() { return notices.splice(0); },
+
+      snapshot() {
+        return {
+          version: 3,
+          balance: unitsToNumber(balanceUnits),
+          earned: unitsToNumber(earnedUnits),
+          balanceUnits: balanceUnits.toString(),
+          earnedUnits: earnedUnits.toString(),
+          manualClicks,
+          owned: Array.from(owned),
+          autoProgress: { ...timers },
+          attack: { ...attackState, active: attackState.remainingMs > 0 },
+          event: eventState ? { ...eventState } : null,
+          eventCountdown
+        };
+      }
+    };
+  }
+
+  return Object.freeze({ PRODUCTS, EVENTS, createGame });
+});
+
+window.EpicI18n = {
+  ru: {
+    ui: {
+      edition: "МАЛЕНЬКИЕ КЛИКИ. БОЛЬШАЯ ЭНЕРГИЯ.", settings: "Настройки", upgrades: "Прокачка",
+      eyebrow: "КАЖДЫЙ КЛИК — ЭТО ЭНЕРГИЯ", hero: "Сделай это ", epic: "эпично.",
+      side: "БОЛЬШЕ КЛИКОВ / БОЛЬШЕ МОЩИ", clicksCaps: "КЛИКОВ", clicks: "кликов",
+      rhythm: "ЛОВИ СВОЙ РИТМ", go: "ПОГНАЛИ!", epicCombo: "ЭПИЧНО!!!",
+      perPress: "за нажатие", autoPerSecond: "в секунду авто", clickHint: "Жми ЛКМ в любом месте — и погнали!",
+      statistics: "Статистика игры", totalEarned: "ВСЕГО ЗАРАБОТАНО", autoclickers: "АВТОКЛИКЕРЫ",
+      activeOfThree: "из 3 активны", nextUpgrade: "СЛЕДУЮЩАЯ ПРОКАЧКА", footer: "МЕНЬШЕ СЛОВ. БОЛЬШЕ КЛИКОВ.",
+      attackTitle: "ЭПИЧЕСКАЯ АТАКА", shopKicker: "ПОДНИМИ СВОЙ УРОВЕНЬ", closeShop: "Закрыть магазин",
+      shopSubtitle: "Покупай по порядку. Собери всю мощь.",
+      shopFoot: "Покупки открываются по порядку и остаются активными. Базовое нажатие даёт +1. Усиления +0,5, +1,5, +2 и бонусы +5 и +1 складываются: со всеми прокачками +11 за клик.",
+      settingsKicker: "ТВОЯ ИГРА. ТВОИ ПРАВИЛА.", closeSettings: "Закрыть настройки",
+      language: "Язык", languageHint: "Меняется сразу во всей игре", sound: "Звук",
+      soundHint: "Клики, покупки и эпические моменты", soundOn: "Включён", soundOff: "Выключен",
+      settingsNote: "Настройки и прогресс сохраняются автоматически. События и атака ждут, пока ты в меню или на другой вкладке. Автокликеры продолжают работать.",
+      saved: "Прогресс сохраняется автоматически", saveUnavailable: "Сохранение недоступно в этом браузере",
+      balance: "Баланс: {value} кликов", owned: "✓ Куплено", locked: "Закрыто", buy: "Купить {title} за {cost} кликов",
+      notEnough: "Недостаточно кликов", unlockAfter: "Сначала купи «{title}»", purchased: "Прокачано: {title}",
+      empty: "Твоя эпичная история только начинается", ready: "Можно забрать! Открыть магазин",
+      remaining: "Ещё {amount} кликов до покупки", allUpgraded: "Всё прокачано. Ты легенда!", allUpgradedHint: "Теперь каждый клик — эпичный",
+      baseFormula: "Базовое нажатие: +1", boostFormula: "База 1 + {amount} от усилений",
+      flatBonus: " + {amount} бонус", auto: "авто", nextEvent: "СЛЕДУЮЩЕЕ СОБЫТИЕ",
+      nextEventHint: "Новая удача, испытание или эпический бонус уже на подходе.",
+      seconds: "{value} с", paused: "пауза", questProgress: "{done}/{target} нажатий",
+      eventSuccess: "УСПЕХ", eventFailure: "НЕУДАЧА", eventFinished: "СОБЫТИЕ ЗАВЕРШЕНО",
+      eventResult: "{title} · {result}: {amount} кликов", attackStarted: "Эпическая атака! +600 за 3 секунды",
+      attackEnded: "Атака завершена", attackBadge: "Атака: через {count} нажатий — шанс 50%"
+    },
+    products: {
+      half: { title: "0,5× нажатие", type: "УСИЛЕНИЕ КЛИКА", badge: "+0,5 за клик", desc: "Добавляет 0,5 к доходу одного нажатия: базовый 1 + 0,5 = 1,5 клика. Остальные усиления складываются с этим." },
+      autoSlow: { title: "Авто-клик", type: "АВТОМАТИЗАЦИЯ", badge: "Авто: +1 / 5 сек", desc: "+1 клик каждые 5 секунд, даже пока ты в магазине." },
+      power: { title: "КЛИК СТЕПЕНИ!!!", type: "ЭПИЧЕСКАЯ СИЛА", badge: "+5 за клик", desc: "Ещё +5 за каждое нажатие и пять маленьких +1 возле курсора." },
+      multiplier: { title: "1,5× нажатие", type: "УСИЛЕНИЕ КЛИКА", badge: "+1,5 за клик", desc: "Добавляет ещё 1,5 к доходу каждого нажатия. Складывается со всеми остальными усилениями." },
+      autoFast: { title: "Авто-кликер PRO", type: "АВТОМАТИЗАЦИЯ", badge: "Авто: +5 / 2 сек", desc: "+5 кликов каждые 2 секунды. Работает вместе с другими автокликерами." },
+      extra: { title: "ЭКСТРА КЛИК +1", type: "БОНУС К КЛИКУ", badge: "+1 за клик", desc: "Ещё +1 за каждое нажатие: обычный клик 1 + 1 = 2. Складывается с остальными бонусами." },
+      attack: { title: "ЭПИЧЕСКАЯ АТАКА", type: "ЭПИЧЕСКАЯ СИЛА", badge: "Атака: 50% / 10 кликов", desc: "Каждое десятое нажатие после покупки — шанс 50% на атаку. Красный фон, тряска и +20 каждые 0,1 секунды в течение 3 секунд: всего +600." },
+      double: { title: "2× нажатие", type: "УСИЛЕНИЕ КЛИКА", badge: "+2 за клик", desc: "Добавляет ещё 2 клика к каждому нажатию. Все усиления и бонусы работают вместе." },
+      events: { title: "События", type: "СЛУЧАЙНЫЕ СОБЫТИЯ", badge: "События включены", desc: "События каждые 35–55 секунд: удвоение счётчика, золотой дождь, задания на скорость, удача и неудача. В меню таймер ждёт." },
+      ultra: { title: "Авто-кликер ULTRA", type: "АВТОМАТИЗАЦИЯ", badge: "Авто: +100 / 3 сек", desc: "+100 кликов каждые 3 секунды. Все три автокликера работают одновременно." }
+    },
+    events: {
+      doubleDay: { title: "ДЕНЬ УМНОЖЕНИЯ", desc: "Весь счётчик только что удвоился! {amount} кликов." },
+      goldenRain: { title: "ЗОЛОТОЙ ДОЖДЬ", desc: "+10 кликов каждые полсекунды в течение 8 секунд. Всего +160!" },
+      marathon: { title: "КЛИК-МАРАФОН", desc: "Сделай 25 нажатий за 15 секунд: награда +250. Не успеешь — потеряешь до 100. {progress}" },
+      overload: { title: "ПЕРЕГРУЗКА", desc: "10 нажатий за 10 секунд: +150. Не успеешь — минус 10% счётчика, максимум 200. {progress}" },
+      luckyPulse: { title: "ИМПУЛЬС УДАЧИ", desc: "Шанс 50% на +300, иначе −100. Твой результат: {amount}." }
+    }
+  },
+  en: {
+    ui: {
+      edition: "SMALL CLICKS. BIG ENERGY.", settings: "Settings", upgrades: "Upgrades",
+      eyebrow: "EVERY CLICK IS ENERGY", hero: "Make it ", epic: "epic.",
+      side: "MORE CLICKS / MORE POWER", clicksCaps: "CLICKS", clicks: "clicks",
+      rhythm: "FIND YOUR RHYTHM", go: "LET'S GO!", epicCombo: "EPIC!!!",
+      perPress: "per press", autoPerSecond: "auto per second", clickHint: "Left-click anywhere — let's go!",
+      statistics: "Game statistics", totalEarned: "TOTAL EARNED", autoclickers: "AUTO-CLICKERS",
+      activeOfThree: "of 3 active", nextUpgrade: "NEXT UPGRADE", footer: "LESS TALK. MORE CLICKS.",
+      attackTitle: "EPIC ATTACK", shopKicker: "TAKE IT UP A LEVEL", closeShop: "Close shop",
+      shopSubtitle: "Unlock in order. Collect all the power.",
+      shopFoot: "Unlock upgrades in order; purchased upgrades stay active. A normal press earns +1. The +0.5, +1.5, +2 boosts and +5 and +1 bonuses add up: +11 per press with every upgrade.",
+      settingsKicker: "YOUR GAME. YOUR RULES.", closeSettings: "Close settings",
+      language: "Language", languageHint: "Changes across the entire game instantly", sound: "Sound",
+      soundHint: "Clicks, purchases and epic moments", soundOn: "On", soundOff: "Off",
+      settingsNote: "Preferences and progress are saved automatically. Events and attacks pause in menus or when the tab is hidden. Auto-clickers keep working.",
+      saved: "Progress is saved automatically", saveUnavailable: "Saving is unavailable in this browser",
+      balance: "Balance: {value} clicks", owned: "✓ Purchased", locked: "Locked", buy: "Buy {title} for {cost} clicks",
+      notEnough: "Not enough clicks", unlockAfter: "First buy “{title}”", purchased: "Upgraded: {title}",
+      empty: "Your epic story is just beginning", ready: "Ready to unlock! Open shop",
+      remaining: "{amount} more clicks to unlock", allUpgraded: "Fully upgraded. You're a legend!", allUpgradedHint: "Now every click is epic",
+      baseFormula: "Base press: +1", boostFormula: "Base 1 + {amount} from boosts",
+      flatBonus: " + {amount} bonus", auto: "auto", nextEvent: "NEXT EVENT",
+      nextEventHint: "A lucky break, a challenge or an epic bonus is on its way.",
+      seconds: "{value} s", paused: "paused", questProgress: "{done}/{target} presses",
+      eventSuccess: "SUCCESS", eventFailure: "BAD LUCK", eventFinished: "EVENT COMPLETE",
+      eventResult: "{title} · {result}: {amount} clicks", attackStarted: "Epic attack! +600 over 3 seconds",
+      attackEnded: "Attack complete", attackBadge: "Attack: 50% chance in {count} presses"
+    },
+    products: {
+      half: { title: "0.5× press", type: "CLICK BOOST", badge: "+0.5 per press", desc: "Adds 0.5 to each press: base 1 + 0.5 = 1.5 clicks. Stacks with every other boost." },
+      autoSlow: { title: "Auto-click", type: "AUTOMATION", badge: "Auto: +1 / 5 s", desc: "+1 click every 5 seconds, even while you're in the shop." },
+      power: { title: "CLICK POWER!!!", type: "EPIC POWER", badge: "+5 per press", desc: "An extra +5 per press and five tiny +1s around the cursor." },
+      multiplier: { title: "1.5× press", type: "CLICK BOOST", badge: "+1.5 per press", desc: "Adds another 1.5 to each press. Stacks with every other boost." },
+      autoFast: { title: "Auto-clicker PRO", type: "AUTOMATION", badge: "Auto: +5 / 2 s", desc: "+5 clicks every 2 seconds. Works alongside the other auto-clickers." },
+      extra: { title: "EXTRA CLICK +1", type: "CLICK BONUS", badge: "+1 per press", desc: "An extra +1 per press: a regular click becomes 1 + 1 = 2. Stacks with the other bonuses." },
+      attack: { title: "EPIC ATTACK", type: "EPIC POWER", badge: "Attack: 50% / 10 presses", desc: "Every tenth press after purchase has a 50% chance of an attack. Red glow, screen shake and +20 every 0.1 seconds for 3 seconds: +600 total." },
+      double: { title: "2× press", type: "CLICK BOOST", badge: "+2 per press", desc: "Adds another 2 clicks to each press. All boosts and bonuses work together." },
+      events: { title: "Events", type: "RANDOM EVENTS", badge: "Events enabled", desc: "An event every 35–55 seconds: double balance, golden rain, timed challenges, luck and bad luck. Timers pause in menus." },
+      ultra: { title: "Auto-clicker ULTRA", type: "AUTOMATION", badge: "Auto: +100 / 3 s", desc: "+100 clicks every 3 seconds. All three auto-clickers work together." }
+    },
+    events: {
+      doubleDay: { title: "MULTIPLIER DAY", desc: "Your whole balance just doubled! {amount} clicks." },
+      goldenRain: { title: "GOLDEN RAIN", desc: "+10 clicks every half-second for 8 seconds. +160 total!" },
+      marathon: { title: "CLICK MARATHON", desc: "Make 25 presses in 15 seconds for +250. Miss it and lose up to 100. {progress}" },
+      overload: { title: "OVERLOAD", desc: "10 presses in 10 seconds for +150. Miss it and lose 10% of your balance, up to 200. {progress}" },
+      luckyPulse: { title: "LUCKY PULSE", desc: "50% chance of +300, otherwise −100. Your result: {amount}." }
+    }
+  }
+};
+
+
+(() => {
+  "use strict";
+  const { PRODUCTS, createGame } = window.EpicEngine;
+  const dictionaries = window.EpicI18n;
+  const $ = id => document.getElementById(id);
+  const STORAGE_KEY = "epic-clicker-v1";
+  const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
+  let saved = null;
+  try { saved = JSON.parse(localStorage.getItem(STORAGE_KEY)); } catch { /* Start normally if storage is unavailable. */ }
+  const game = createGame(saved);
+  let language = saved?.language === "en" ? "en" : "ru";
+  let soundEnabled = saved?.sound === true;
+  let storageAvailable = true;
+  let dirty = true;
+  let scoreAnimation, toastTimer, comboTimer, audio;
+  let burstTimes = [];
+  let previousTime = performance.now();
+  let lastInteractive = !document.hidden;
+  const shop = $("shop"), settings = $("settings"), score = $("score"), effects = $("effects");
+  const cards = new Map();
+  const autoIds = ["autoSlow", "autoFast", "ultra"];
+  const autoBars = ["auto-slow-progress", "auto-fast-progress", "auto-ultra-progress"];
+  const controls = "button, a, input, select, textarea, label, summary, [role='button'], [data-ui], [contenteditable='true']";
+  const format = number => number.toLocaleString(language === "en" ? "en-US" : "ru-RU", { maximumFractionDigits: 2 });
+  // Keep even the last quarter-click visible after migrating very large old saves.
+  const formatUnits = units => {
+    const fraction = ["", "25", "5", "75"][Number(units % 4n)];
+    return format(units / 4n) + (fraction ? (language === "en" ? "." : ",") + fraction : "");
+  };
+  const signed = number => (number < 0 ? "−" : "+") + format(Math.abs(number));
+  const interpolate = (text, values = {}) => text.replace(/\{(\w+)\}/g, (_, key) => values[key] ?? "");
+  const t = (key, values) => interpolate(dictionaries[language].ui[key] ?? key, values);
+  const productText = id => dictionaries[language].products[id];
+  const anyModal = () => shop.open || settings.open;
+  let recentEventResult = null;
+  let recentEventUntil = 0;
+
+  for (const product of PRODUCTS) {
+    const card = document.createElement("article");
+    card.className = "product" + (["power", "attack", "events"].includes(product.id) ? " epic" : "");
+    card.dataset.product = product.id;
+    card.innerHTML = '<div class="product-icon" aria-hidden="true"></div><div><div class="product-type"></div><h3></h3><p class="product-description"></p><p class="lock-note" hidden></p></div><button class="buy-btn" data-buy="' + product.id + '"></button>';
+    card.querySelector(".product-icon").textContent = product.icon;
+    const button = card.querySelector("button");
+    button.addEventListener("click", () => {
+      updateTimers();
+      if (!game.buy(product.id)) return;
+      dirty = true;
+      renderState();
+      renderUpgrades();
+      save();
+      notify(t("purchased", { title: productText(product.id).title }));
+      playTone(550, 0.08);
+      setTimeout(() => playTone(830, 0.1), 65);
+      if (!reducedMotion.matches) card.animate([{ transform: "scale(1)" }, { transform: "scale(1.025)", background: "#d4ff6312" }, { transform: "scale(1)" }], { duration: 250 });
+    });
+    cards.set(product.id, { card, button, lockNote: card.querySelector(".lock-note") });
+    $("products").append(card);
+  }
+
+  function renderLanguage() {
+    document.documentElement.lang = language;
+    document.querySelectorAll("[data-i18n]").forEach(el => { el.textContent = t(el.dataset.i18n); });
+    document.querySelectorAll("[data-i18n-aria]").forEach(el => { el.setAttribute("aria-label", t(el.dataset.i18nAria)); });
+    for (const product of PRODUCTS) {
+      const { card } = cards.get(product.id), copy = productText(product.id);
+      card.querySelector(".product-type").textContent = copy.type;
+      card.querySelector("h3").textContent = copy.title;
+      card.querySelector(".product-description").textContent = copy.desc;
+    }
+    document.querySelectorAll("[data-language]").forEach(button => {
+      const selected = button.dataset.language === language;
+      button.setAttribute("aria-pressed", String(selected));
+      button.classList.toggle("is-selected", selected);
+    });
+    $("combo-title").textContent = t("go");
+    $("shop-notice").textContent = "";
+    $("toast").classList.remove("show");
+    renderSound();
+    renderState();
+    renderUpgrades();
+    renderSaveStatus();
+  }
+
+  function renderState() {
+    const value = formatUnits(game.balanceUnits);
+    score.textContent = value;
+    score.classList.toggle("medium", value.length > 6 && value.length <= 10);
+    score.classList.toggle("small", value.length > 10);
+    score.classList.toggle("massive", value.length > 24);
+    score.setAttribute("aria-label", t("balance", { value }));
+    $("shop-balance").textContent = value;
+    $("lifetime").replaceChildren(document.createTextNode(formatUnits(game.earnedUnits) + " "), Object.assign(document.createElement("small"), { textContent: t("clicks") }));
+    $("click-gain").textContent = signed(game.perClick());
+    const autoRate = PRODUCTS.filter(p => p.interval && game.has(p.id)).reduce((sum, p) => sum + p.amount * 1000 / p.interval, 0);
+    $("auto-gain").textContent = format(autoRate);
+    $("auto-count").textContent = autoIds.filter(id => game.has(id)).length;
+    const bonus = (game.has("power") ? 5 : 0) + (game.has("extra") ? 1 : 0);
+    $("click-formula").textContent = (game.clickBoost() > 0
+      ? t("boostFormula", { amount: format(game.clickBoost()) }) : t("baseFormula"))
+      + (bonus ? t("flatBonus", { amount: format(bonus) }) : "");
+
+    let affordable = 0;
+    const next = PRODUCTS.find(p => !game.has(p.id));
+    for (const product of PRODUCTS) {
+      const { card, button, lockNote } = cards.get(product.id);
+      const owned = game.has(product.id), unlocked = game.isUnlocked(product.id);
+      const available = game.balance >= product.cost;
+      const copy = productText(product.id);
+      card.classList.toggle("owned", owned);
+      card.classList.toggle("locked", !unlocked);
+      lockNote.hidden = unlocked;
+      lockNote.textContent = !unlocked && next ? t("unlockAfter", { title: productText(next.id).title }) : "";
+      button.disabled = owned || !unlocked || !available;
+      if (owned) {
+        button.textContent = t("owned");
+        button.setAttribute("aria-label", copy.title + ": " + t("owned"));
+      } else if (!unlocked) {
+        button.replaceChildren(document.createTextNode("🔒 " + t("locked")), Object.assign(document.createElement("small"), { textContent: format(product.cost) + " " + t("clicks") }));
+        button.setAttribute("aria-label", copy.title + ": " + t("locked") + ". " + lockNote.textContent);
+      } else {
+        button.replaceChildren(document.createTextNode(format(product.cost)), Object.assign(document.createElement("small"), { textContent: t("clicks") }));
+        button.setAttribute("aria-label", t("buy", { title: copy.title, cost: format(product.cost) }) + (available ? "" : ". " + t("notEnough")));
+        if (available) affordable++;
+      }
+    }
+    $("shop-count").textContent = affordable ? String(affordable) : "";
+    if (next) {
+      $("next-name").textContent = productText(next.id).title;
+      $("next-price").textContent = value + " / " + format(next.cost);
+      $("next-progress").style.width = Math.min(100, game.balance / next.cost * 100) + "%";
+      $("next-description").textContent = game.balance >= next.cost ? t("ready") : t("remaining", { amount: format(next.cost - game.balance) });
+    } else {
+      $("next-name").textContent = t("allUpgraded");
+      $("next-price").textContent = PRODUCTS.length + " / " + PRODUCTS.length;
+      $("next-progress").style.width = "100%";
+      $("next-description").textContent = t("allUpgradedHint");
+    }
+    renderTimedState();
+  }
+
+  function renderUpgrades() {
+    const container = $("active-upgrades");
+    container.replaceChildren();
+    for (const product of PRODUCTS) {
+      if (!game.has(product.id)) continue;
+      const tag = document.createElement("span");
+      tag.className = "upgrade-tag";
+      tag.textContent = productText(product.id).badge;
+      if (product.id === "attack") tag.id = "attack-badge";
+      container.append(tag);
+    }
+    if (!container.childElementCount) container.append(Object.assign(document.createElement("span"), { className: "empty-upgrades", textContent: t("empty") }));
+    renderTimedState();
+  }
+
+  function renderTimedState() {
+    autoIds.forEach((id, index) => { $(autoBars[index]).style.transform = "scaleX(" + game.autoProgress(id) + ")"; });
+    const attack = game.attack;
+    document.body.classList.toggle("attack-active", attack.active && !anyModal() && !document.hidden);
+    $("attack-overlay").hidden = !attack.active || anyModal() || document.hidden;
+    $("attack-status").hidden = !attack.active || anyModal() || document.hidden;
+    $("attack-time").textContent = t("seconds", { value: format(Math.ceil(attack.remainingMs / 100) / 10) });
+    const badge = $("attack-badge");
+    if (badge) badge.textContent = t("attackBadge", { count: attack.clicksUntilRoll });
+    const banner = $("event-banner");
+    banner.hidden = !game.has("events");
+    if (banner.hidden) return;
+    const event = game.event;
+    banner.dataset.state = event?.outcome || "active";
+    if (event) {
+      const copy = dictionaries[language].events[event.id];
+      $("event-title").textContent = copy.title;
+      $("event-timer").textContent = anyModal() || document.hidden ? t("paused") : t("seconds", { value: Math.ceil(event.remainingMs / 1000) });
+      $("event-description").textContent = interpolate(copy.desc, {
+        amount: signed(event.amount),
+        progress: t("questProgress", { done: event.progress, target: event.target })
+      });
+      $("event-progress").hidden = false;
+      $("event-progress-fill").style.width = (event.target ? event.progress / event.target : 1 - event.remainingMs / event.durationMs) * 100 + "%";
+    } else if (recentEventResult && performance.now() < recentEventUntil) {
+      const result = recentEventResult;
+      banner.dataset.state = result.outcome;
+      $("event-title").textContent = dictionaries[language].events[result.eventId].title;
+      $("event-timer").textContent = signed(result.amount);
+      $("event-description").textContent = t(result.outcome === "failure" ? "eventFailure" : result.outcome === "success" ? "eventSuccess" : "eventFinished");
+      $("event-progress").hidden = true;
+    } else {
+      $("event-title").textContent = t("nextEvent");
+      $("event-timer").textContent = anyModal() || document.hidden ? t("paused") : t("seconds", { value: Math.ceil(game.eventCountdown / 1000) });
+      $("event-description").textContent = t("nextEventHint");
+      $("event-progress").hidden = true;
+    }
+  }
+
+  function bump(autoClick = false) {
+    if (reducedMotion.matches) return;
+    scoreAnimation?.cancel();
+    const angle = autoClick ? 1.5 : Math.random() > 0.5 ? 3 : -3;
+    scoreAnimation = $("score-wrap").animate([
+      { transform: "scale(1) rotate(0deg)" },
+      { transform: "scale(" + (autoClick ? 1.035 : 1.1) + ") rotate(" + angle + "deg)", offset: 0.35 },
+      { transform: "scale(1) rotate(0deg)" }
+    ], { duration: 140, easing: "ease-out" });
+  }
+
+  function effect(className, x, y, text) {
+    while (effects.childElementCount >= 200) effects.firstElementChild.remove();
+    const el = document.createElement("span");
+    el.className = className;
+    el.style.left = x + "px";
+    el.style.top = y + "px";
+    if (text) el.textContent = text;
+    effects.append(el);
+    el.addEventListener("animationend", () => el.remove(), { once: true });
+    setTimeout(() => el.remove(), 1200);
+    return el;
+  }
+
+  function floatAtScore(amount, label = "", red = false) {
+    if (reducedMotion.matches || document.hidden || anyModal() || !amount) return;
+    const rect = score.getBoundingClientRect();
+    const el = effect("float-number bonus", Math.min(innerWidth - 45, rect.right + 10), Math.max(75, rect.top + 20), signed(amount) + (label ? " " + label : ""));
+    if (red) el.style.color = "#ffb5aa";
+  }
+
+  function clickEffects(x, y, baseAmount, flatBonus) {
+    if (reducedMotion.matches) return;
+    effect("ripple", x, y);
+    const labelX = Math.max(35, Math.min(innerWidth - 35, x));
+    const labelY = Math.max(84, y - 16);
+    effect("float-number", labelX, labelY, signed(baseAmount));
+    for (let i = 0; i < 6; i++) {
+      const angle = i / 6 * Math.PI * 2 + Math.random() * 0.4;
+      const el = effect("spark", x, y);
+      el.style.setProperty("--dx", Math.cos(angle) * (30 + Math.random() * 35) + "px");
+      el.style.setProperty("--dy", Math.sin(angle) * (30 + Math.random() * 35) + "px");
+      if (i % 2) el.style.background = "var(--purple)";
+    }
+    for (let i = 0; i < Math.min(6, flatBonus); i++) {
+      const offset = (i - (flatBonus - 1) / 2) * 18;
+      const el = effect("float-number bonus", Math.max(12, Math.min(innerWidth - 12, x + offset)), labelY + 20 + Math.abs(offset) / 3, "+1");
+      el.style.setProperty("--drift", offset * 0.65 + "px");
+      el.style.animationDelay = i * 18 + "ms";
+    }
+  }
+
+  function handleNotices() {
+    const notices = game.drainNotices();
+    let attackParticles = 0;
+    for (const notice of notices) {
+      if (notice.kind === "attack-start") {
+        notify(t("attackStarted"));
+        playTone(120, 0.2);
+      } else if (notice.kind === "attack-tick") {
+        attackParticles += notice.amount;
+      } else if (notice.kind === "attack-end") {
+        playTone(440, 0.08);
+      } else if (notice.kind === "event-income") {
+        floatAtScore(notice.amount);
+      } else if (notice.kind === "event-start") {
+        recentEventResult = null;
+        notify(dictionaries[language].events[notice.eventId].title);
+        floatAtScore(notice.amount);
+        playTone(690, 0.12);
+      } else if (notice.kind === "event-end") {
+        recentEventResult = notice;
+        recentEventUntil = performance.now() + 4500;
+        notify(t("eventResult", {
+          title: dictionaries[language].events[notice.eventId].title,
+          result: t(notice.outcome === "failure" ? "eventFailure" : notice.outcome === "success" ? "eventSuccess" : "eventFinished"),
+          amount: signed(notice.amount)
+        }));
+        // Timed quests pay at completion; rain and instant events paid earlier.
+        if (["marathon", "overload"].includes(notice.eventId)) floatAtScore(notice.amount);
+      }
+    }
+    if (attackParticles && !reducedMotion.matches && !document.hidden && !anyModal()) {
+      const rect = score.getBoundingClientRect();
+      for (let i = 0; i < Math.min(40, attackParticles); i++) {
+        const el = effect("float-number bonus", rect.x + rect.width / 2 + (Math.random() - 0.5) * 180, Math.max(90, rect.y + rect.height / 2 + (Math.random() - 0.5) * 100), "+1");
+        el.style.color = "#ff998e";
+        el.style.setProperty("--drift", (Math.random() - 0.5) * 90 + "px");
+      }
+      bump(true);
+      playTone(140 + Math.random() * 70, 0.035);
+    }
+    return notices.length;
+  }
+
+  function manualClick(x, y) {
+    updateTimers();
+    const baseAmount = game.base(), manualAmount = game.perClick();
+    game.click();
+    dirty = true;
+    renderState();
+    bump();
+    clickEffects(x, y, baseAmount, Math.max(0, manualAmount - baseAmount));
+    playTone(330 + Math.random() * 90, 0.035);
+    handleNotices();
+    renderTimedState();
+    const now = performance.now();
+    burstTimes = burstTimes.filter(time => now - time < 1100);
+    burstTimes.push(now);
+    if (burstTimes.length >= 4) {
+      $("combo").classList.add("active");
+      $("combo-title").textContent = t(burstTimes.length >= 9 ? "epicCombo" : "go");
+      clearTimeout(comboTimer);
+      comboTimer = setTimeout(() => $("combo").classList.remove("active"), 850);
+    }
+  }
+
+  document.addEventListener("pointerdown", event => {
+    if (event.button !== 0 || !event.isPrimary || anyModal()) return;
+    if (!(event.target instanceof Element) || event.target.closest(controls)) return;
+    manualClick(event.clientX, event.clientY);
+  });
+  document.addEventListener("keydown", event => {
+    if (event.code !== "Space" || event.repeat || anyModal() || !(event.target instanceof Element) || event.target.closest(controls)) return;
+    event.preventDefault();
+    const rect = score.getBoundingClientRect();
+    manualClick(rect.x + rect.width / 2, rect.y + rect.height / 2);
+  });
+
+  function openModal(modal) {
+    if (anyModal()) return;
+    updateTimers();
+    renderState();
+    modal.classList.remove("closing");
+    modal.showModal();
+    lastInteractive = false;
+    renderTimedState();
+    playTone(460, 0.06);
+  }
+  function closeModal(modal) {
+    if (!modal.open || modal.classList.contains("closing")) return;
+    const finish = () => {
+      updateTimers();
+      modal.close();
+      modal.classList.remove("closing");
+      lastInteractive = !document.hidden;
+      renderTimedState();
+    };
+    if (reducedMotion.matches) finish();
+    else {
+      modal.classList.add("closing");
+      setTimeout(finish, 130);
+    }
+  }
+  $("shop-btn").addEventListener("click", () => openModal(shop));
+  $("next-upgrade").addEventListener("click", () => openModal(shop));
+  $("settings-btn").addEventListener("click", () => openModal(settings));
+  $("close-shop").addEventListener("click", () => closeModal(shop));
+  $("close-settings").addEventListener("click", () => closeModal(settings));
+  for (const modal of [shop, settings]) {
+    modal.addEventListener("cancel", event => { event.preventDefault(); closeModal(modal); });
+    modal.addEventListener("click", event => {
+      if (event.target !== modal) return;
+      const rect = modal.getBoundingClientRect();
+      if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) closeModal(modal);
+    });
+  }
+
+  document.querySelectorAll("[data-language]").forEach(button => button.addEventListener("click", () => {
+    language = button.dataset.language === "en" ? "en" : "ru";
+    dirty = true;
+    renderLanguage();
+    save();
+  }));
+  $("sound-toggle").addEventListener("click", () => {
+    soundEnabled = !soundEnabled;
+    dirty = true;
+    renderSound();
+    playTone(640, 0.06);
+    save();
+  });
+
+  function notify(message) {
+    clearTimeout(toastTimer);
+    if (shop.open) {
+      $("shop-notice").textContent = message;
+      toastTimer = setTimeout(() => { $("shop-notice").textContent = ""; }, 2300);
+    } else {
+      $("toast").textContent = message;
+      $("toast").classList.add("show");
+      toastTimer = setTimeout(() => $("toast").classList.remove("show"), 2300);
+    }
+  }
+  function playTone(frequency, duration) {
+    if (!soundEnabled || document.hidden) return;
+    try {
+      const Audio = window.AudioContext || window.webkitAudioContext;
+      if (!Audio) return;
+      if (!audio) audio = new Audio();
+      if (audio.state === "suspended") void audio.resume().catch(() => {});
+      const osc = audio.createOscillator(), gain = audio.createGain();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(frequency, audio.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(Math.max(80, frequency * 0.7), audio.currentTime + duration);
+      gain.gain.setValueAtTime(0.025, audio.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audio.currentTime + duration);
+      osc.connect(gain); gain.connect(audio.destination);
+      osc.start();
+      osc.stop(audio.currentTime + duration);
+      osc.onended = () => { osc.disconnect(); gain.disconnect(); };
+    } catch { /* Audio is optional. */ }
+  }
+  function renderSound() {
+    $("sound-toggle").setAttribute("aria-pressed", String(soundEnabled));
+    $("sound-toggle").textContent = t(soundEnabled ? "soundOn" : "soundOff");
+    $("sound-toggle").setAttribute("aria-label", t("sound") + ": " + t(soundEnabled ? "soundOn" : "soundOff"));
+  }
+  function renderSaveStatus() {
+    $("save-status").replaceChildren(document.createElement("i"), document.createTextNode(t(storageAvailable ? "saved" : "saveUnavailable")));
+    if (!storageAvailable) $("save-status").firstChild.style.background = "#bc8e64";
+  }
+  function save() {
+    if (!dirty) return;
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...game.snapshot(), sound: soundEnabled, language }));
+      dirty = false;
+      storageAvailable = true;
+    } catch { storageAvailable = false; }
+    renderSaveStatus();
+  }
+
+  function updateTimers() {
+    const now = performance.now();
+    const delta = now - previousTime;
+    previousTime = now;
+    const income = game.advance(delta, { eventsActive: lastInteractive });
+    lastInteractive = !document.hidden && !anyModal();
+    const noticeCount = handleNotices();
+    if (income || noticeCount) {
+      dirty = true;
+      renderState();
+      if (income && !noticeCount && !anyModal() && !document.hidden) {
+        bump(true);
+        floatAtScore(income, t("auto"));
+      }
+    }
+    renderTimedState();
+  }
+
+  setInterval(updateTimers, 50);
+  setInterval(() => { dirty = true; save(); }, 1500);
+  window.addEventListener("pagehide", () => { updateTimers(); dirty = true; save(); });
+  document.addEventListener("visibilitychange", () => {
+    updateTimers();
+    lastInteractive = !document.hidden && !anyModal();
+    dirty = true;
+    save();
+  });
+  renderLanguage();
+  save();
+})();
+
+
+</script>
+</body>
+</html>
+

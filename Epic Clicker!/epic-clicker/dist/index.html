@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#101018">
+<meta name="description" content="Epic Clicker! — неоновый кликер. Собирай энергию, покупай улучшения и делай каждый клик эпичным.">
+<title>Epic Clicker!</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%230e1016'/%3E%3Cpath d='M37 5 12 36h18l-4 23 26-35H34z' fill='%23d4ff63'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="style.css?v=3">
+<script src="engine.js?v=3" defer></script>
+<script src="i18n.js?v=3" defer></script>
+<script src="game.js?v=3" defer></script>
+</head>
+<body>
+<div class="page" id="game-page">
+<div class="grid" aria-hidden="true"></div><div class="ambient" aria-hidden="true"></div>
+<header>
+<div class="brand"><div class="brand-mark" aria-hidden="true">ϟ</div><div class="brand-text">EPIC CLICKER<span>!</span><span class="edition" data-i18n="edition">МАЛЕНЬКИЕ КЛИКИ. БОЛЬШАЯ ЭНЕРГИЯ.</span></div></div>
+<div class="header-right">
+<button class="settings-btn" id="settings-btn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 17h16M8 4v6m8 4v6"/></svg><span data-i18n="settings">Настройки</span></button>
+<button class="shop-btn" id="shop-btn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m13 3-8 11h6l-1 7 9-12h-7z"/></svg><span data-i18n="upgrades">Прокачка</span><span class="shop-count" id="shop-count"></span></button>
+</div>
+</header>
+<main>
+<div class="eyebrow"><i></i><span data-i18n="eyebrow">КАЖДЫЙ КЛИК — ЭТО ЭНЕРГИЯ</span></div>
+<h1><span data-i18n="hero">Сделай это </span><em data-i18n="epic">эпично.</em></h1>
+<div class="ghost" aria-hidden="true">CLICK!</div>
+<div class="side-label left" aria-hidden="true"><span data-i18n="side">БОЛЬШЕ КЛИКОВ / БОЛЬШЕ МОЩИ</span></div>
+<div class="side-label right" aria-hidden="true">EPIC CLICKER <span> / </span> VOL. 002</div>
+<div class="arena" id="arena">
+<div class="orbit" aria-hidden="true"></div><div class="orbit second" aria-hidden="true"></div><div class="orbit third" aria-hidden="true"></div>
+<span class="mini-star one" aria-hidden="true">✦</span><span class="mini-star two" aria-hidden="true">✧</span><span class="mini-star three" aria-hidden="true">✦</span>
+<div class="bolt" aria-hidden="true"><svg viewBox="0 0 70 88"><defs><linearGradient id="bolt-fill" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#edffad"/><stop offset="1" stop-color="#b8eb3d"/></linearGradient></defs><path d="M40 5 10 49h21l-5 34 35-49H39z" fill="#839c3e" transform="translate(3 3)"/><path d="M40 5 10 49h21l-5 34 35-49H39z" fill="url(#bolt-fill)" stroke="#efffb7" stroke-width="1.5"/></svg></div>
+<div class="score-wrap" id="score-wrap"><div class="score" id="score" aria-label="Баланс: 0 кликов">0</div></div>
+<div class="score-label" data-i18n="clicksCaps">КЛИКОВ</div>
+</div>
+<div class="combo" id="combo" aria-hidden="true"><span id="combo-title">ПОГНАЛИ!</span><small data-i18n="rhythm">ЛОВИ СВОЙ РИТМ</small></div>
+<div class="gain"><svg viewBox="0 0 12 18" aria-hidden="true"><path d="m7 0-7 10h5l-1 8 8-11H7z"/></svg><b id="click-gain">+1</b><span data-i18n="perPress">за нажатие</span><span>·</span><b id="auto-gain">0</b><span data-i18n="autoPerSecond">в секунду авто</span></div>
+<div class="click-formula" id="click-formula">Базовый клик: +1</div>
+<div class="active-upgrades" id="active-upgrades"><span class="empty-upgrades">Твоя эпичная история только начинается</span></div>
+<div class="event-banner" id="event-banner" hidden><div class="event-heading"><strong class="event-title" id="event-title"></strong><span class="event-timer" id="event-timer"></span></div><p class="event-description" id="event-description"></p><div class="event-progress" id="event-progress"><i id="event-progress-fill"></i></div></div>
+<div class="click-hint"><span class="mouse" aria-hidden="true"></span><span data-i18n="clickHint">Жми ЛКМ в любом месте — и погнали!</span></div>
+</main>
+<section class="dashboard" data-i18n-aria="statistics" aria-label="Статистика игры">
+<div class="stat"><div class="stat-icon" aria-hidden="true">↗</div><div><div class="stat-label" data-i18n="totalEarned">ВСЕГО ЗАРАБОТАНО</div><div class="stat-value" id="lifetime">0 <small>кликов</small></div></div></div>
+<div class="stat"><div class="stat-icon" aria-hidden="true">↻</div><div><div class="stat-label" data-i18n="autoclickers">АВТОКЛИКЕРЫ</div><div class="stat-value"><span id="auto-count">0</span><small data-i18n="activeOfThree">из 3 активны</small></div><div class="auto-lights" aria-hidden="true"><span class="auto-track"><i id="auto-slow-progress"></i></span><span class="auto-track"><i id="auto-fast-progress"></i></span><span class="auto-track"><i id="auto-ultra-progress"></i></span></div></div></div>
+<button class="next" id="next-upgrade"><div class="stat-label" data-i18n="nextUpgrade">СЛЕДУЮЩАЯ ПРОКАЧКА</div><div class="next-top"><span class="next-name" id="next-name">0,5× бонус</span><span class="next-arrow" aria-hidden="true">↗</span></div><div class="progress"><i id="next-progress"></i></div><div class="progress-caption"><span id="next-description"></span><b id="next-price">0 / 10</b></div></button>
+</section>
+<footer><span class="save-status" id="save-status"><i></i>Прогресс сохраняется автоматически</span><span class="footer-note" data-i18n="footer">МЕНЬШЕ СЛОВ. БОЛЬШЕ КЛИКОВ.</span></footer>
+</div>
+<div class="effects" id="effects" aria-hidden="true"></div>
+<div class="attack-overlay" id="attack-overlay" hidden aria-hidden="true"></div>
+<div class="attack-status" id="attack-status" hidden><strong class="attack-title" data-i18n="attackTitle">ЭПИЧЕСКАЯ АТАКА</strong><span id="attack-time"></span></div>
+<dialog id="shop" aria-labelledby="shop-title">
+<div class="modal-inner">
+<div class="modal-head"><div class="modal-title-row"><div><div class="modal-kicker" data-i18n="shopKicker">ПОДНИМИ СВОЙ УРОВЕНЬ</div><h2 id="shop-title"><span data-i18n="upgrades">Прокачка</span><span style="color:var(--lime)">.</span></h2></div><button class="close-btn" id="close-shop" data-i18n-aria="closeShop" aria-label="Закрыть магазин">×</button></div><div class="modal-sub"><span data-i18n="shopSubtitle">Маленькие апгрейды. Большая энергия.</span><span class="wallet"><span id="shop-balance">0</span><small data-i18n="clicks">кликов</small></span></div></div>
+<div class="products" id="products"></div>
+<div class="modal-foot"><div class="shop-notice" id="shop-notice" role="status" aria-live="polite"></div><span data-i18n="shopFoot">Покупки открываются по порядку. Купленные улучшения остаются активными.</span></div>
+</div>
+</dialog>
+<dialog id="settings" aria-labelledby="settings-title"><div class="settings-inner"><div class="modal-head"><div class="modal-title-row"><div><div class="modal-kicker" data-i18n="settingsKicker">ТВОЯ ИГРА. ТВОИ ПРАВИЛА.</div><h2 id="settings-title" data-i18n="settings">Настройки</h2></div><button class="close-btn" id="close-settings" data-i18n-aria="closeSettings" aria-label="Закрыть настройки">×</button></div></div><div class="setting-row"><div><strong data-i18n="language">Язык</strong><p data-i18n="languageHint">Меняется сразу во всей игре</p></div><div class="language-options" role="group" data-i18n-aria="language" aria-label="Язык"><button class="language-choice" data-language="ru" lang="ru" aria-pressed="true">Русский</button><button class="language-choice" data-language="en" lang="en" aria-pressed="false">English</button></div></div><div class="setting-row"><div><strong data-i18n="sound">Звук</strong><p data-i18n="soundHint">Клики, покупки и эпические моменты</p></div><button class="sound-toggle" id="sound-toggle" aria-pressed="false">Выключен</button></div><p class="settings-note" data-i18n="settingsNote">Настройки и прогресс сохраняются автоматически. События и атака ждут, пока ты в меню.</p></div></dialog>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+</body>
+</html>
+
